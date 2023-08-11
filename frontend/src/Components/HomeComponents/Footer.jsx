@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 function Footer() {
     const navigate = useNavigate()
     return (
-        <div className="w-[100%] mt-7  h-max md:px-[5%] mr-0 text-white bg-black p-5" >
+        <div className="w-[100%] mt-7  h-max md:px-[5%] mr-0 text-white bg-[#21546d] p-5" >
             <div className='flex flex-col justify-center items-center'>
                 <h4 className='text-center'>Copyright. All rights reserved.</h4>
                 <div className="flex items-center gap-2 mt-2">
