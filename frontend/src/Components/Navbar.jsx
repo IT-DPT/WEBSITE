@@ -1,26 +1,4 @@
-// import React from 'react'
-// import img1 from '../Images/logo_try.jpg'
-// function Navbar() {
-//     return (
-//         <div className='w-[100%] h-[70px] shadow-2xl shadow-gray  border-red-200'>
-//             <div className='w-[100%] flex flex-row  items-center  md:gap-32 md:ml-44  mt-2'>
-//                 <div className="flex flex-row items-center">
-//                     <img src={img1} alt="logo" className='w-[60px] h-[60px] rounded-[50%]' />
-//                     <h1 className='text-2xl'>IT-DEPT</h1>
-//                 </div>
-//                 <ul className='flex flex-row gap-8'>
-//                     <li>Home</li>
-//                     <li>About</li>
-//                     <li>Faculty</li>
-//                     <li>Facilities</li>
-//                     <li>Curriculum</li>
-//                 </ul>
-//             </div>
-//         </div>
-//     )
-// }
-
-// export default Navbar
+// style={{background:'rgba(0,0,0,0.2)'}} backgroundImage:`url(${home_2})`,
 import React, { useState } from "react";
 import img1 from '../Images/logo_try.jpg'
 import { AiOutlineClose, AiOutlineMenu } from 'react-icons/ai';
@@ -44,8 +22,8 @@ const Navbar = () => {
     //     navigate('/')
     // }
     return (
-        <div className='flex justify-between items-center h-20 w-[100%] mx-auto mt-0 md:px-20 px-2 sticky top-0 z-40  text-white bg-cover' style={{backgroundImage:`url(${home_2})`}}>
-            <div className="flex items-center gap-2">
+        <div className='flex justify-between items-center h-20 w-[100%] mx-auto mt-0 md:px-20 px-2 sticky top-0 z-40  text-white bg-cover ' style={{ backgroundImage: `url(${home_2})` }} >
+            <div className="flex items-center gap-2 ">
             <img src={img1} onClick={() => navigate('/')} className='h-[60px] md:h-[60px] p-0 md:w-[60px] rounded-[50%] cursor-pointer ' />
                 <h1 className='text-2xl font-mono '>IT-DEPT</h1>
             </div>

@@ -7,8 +7,8 @@ function PhotoGallery() {
         <div className="w-[100%] py-10 h-max px-[10%] bg-slate-100 flex flex-col" >
             <h1 className='text-4xl font-semibold mt-10'>Achievements</h1>
             <div className='flex flex-row flex-start gap-10 text-md md:text-2xl mt-5'>
-                <h1 className={set === 0 ? 'underline underline-offset-2 decoration-sky-600 ' : 'hover:underline hover:underline-offset-2 hover:decoration-sky-400 cursor-pointer'} onClick={() => setState(0)}> Achievements</h1>
-                <h1 className={set === 1 ? 'underline underline-offset-2 decoration-sky-600 ' : 'hover:underline hover:underline-offset-2 hover:decoration-sky-400 cursor-pointer'} onClick={() => setState(1)}>Academic Achievements</h1>
+                <h1 className={set === 0 ? 'underline underline-offset-4 decoration-sky-600 ' : 'hover:underline hover:underline-offset-4 hover:decoration-sky-400 cursor-pointer'} onClick={() => setState(0)}> Achievements</h1>
+                <h1 className={set === 1 ? 'underline underline-offset-4 decoration-sky-600 ' : 'hover:underline hover:underline-offset-4 hover:decoration-sky-400 cursor-pointer'} onClick={() => setState(1)}>Academic Achievements</h1>
 
             </div>
             <div className='flex flex-col justify-center items-center'>
