@@ -2,11 +2,11 @@ import React from 'react'
 
 function About() {
     return (
-        <div className="w-[100%] py-16  h-max md:px-[10%] mr-0 text-black bg-[#daf3f1]" >
-            <div className='flex md:flex-row max-md:flex-col gap-10'>
-                <div className='h-max p-5 md:w-[70%] bg-[#f3f1ed] rounded-3xl   shadow-xl '>
-                    <h1 className='text-5xl font-semibold max-md:text-center ml-1 underline underline-offset-4 decoration-sky-700 '>About</h1>
-                    <p className='p-2 mt-5 text-lg md:text-xl text-gray-600'>The department of Information Technology was established in 2001 with intake capacity of 40 students. In 2007 intake capacity is increased to 60 students. In 2011 minority shift (second shift) is started with intake capacity of 60 students. Information Technology department will strive to achieve excellence in education so as to enable students to establish themselves as world-class technicians. The department will provide vibrant infrastructure and software application tool sets to empower them with the proficiency and knowledge required to excel in the dynamic field of IT and to pursue higher education.
+        <div className="w-[100%] py-16  h-screen md:px-[10%] mr-0 text-black bg-white flex justify-center items-center" >
+            <div className='flex md:flex-row max-md:flex-col gap-x-10'>
+                <div className='h-max p-6 md:w-[70%] bg-sky-50 rounded-md   shadow-xl '>
+                    <h1 className='text-5xl font-semibold max-md:text-center ml-1  text-slate-800 underline underline-offset-4 decoration-blue-700'>About</h1>
+                    <p className='p-2 mt-5 text-md md:text-lg text-gray-500'>The department of Information Technology was established in 2001 with intake capacity of 40 students. In 2007 intake capacity is increased to 60 students. In 2011 minority shift (second shift) is started with intake capacity of 60 students. Information Technology department will strive to achieve excellence in education so as to enable students to establish themselves as world-class technicians. The department will provide vibrant infrastructure and software application tool sets to empower them with the proficiency and knowledge required to excel in the dynamic field of IT and to pursue higher education.
                        
                     </p>
                 </div>

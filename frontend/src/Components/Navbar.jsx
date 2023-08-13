@@ -26,6 +26,7 @@ import img1 from '../Images/logo_try.jpg'
 import { AiOutlineClose, AiOutlineMenu } from 'react-icons/ai';
 import { BiUserCircle } from 'react-icons/bi';
 import { Link } from 'react-router-dom'
+import home_2 from '../Images/home_2.jpg'
 // import { useNavigate } from 'react-router-dom';
 // import { useAuth } from "../Components/Authcontext";
 const Navbar = () => {
@@ -43,10 +44,10 @@ const Navbar = () => {
     //     navigate('/')
     // }
     return (
-        <div className='flex justify-between items-center h-20 w-[100%] mx-auto mt-0 px-2 text-white sticky top-0 z-40 bg-[#21546d]'>
+        <div className='flex justify-between items-center h-20 w-[100%] mx-auto mt-0 md:px-20 px-2 sticky top-0 z-40  text-white bg-cover' style={{backgroundImage:`url(${home_2})`}}>
             <div className="flex items-center gap-2">
             <img src={img1} onClick={() => navigate('/')} className='h-[60px] md:h-[60px] p-0 md:w-[60px] rounded-[50%] cursor-pointer ' />
-                <h1 className='text-2xl font-mono'>IT-DEPT</h1>
+                <h1 className='text-2xl font-mono '>IT-DEPT</h1>
             </div>
             <ul className='hidden md:flex'>
                 <Link className='p-4 hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer' to='/' >Home</Link>

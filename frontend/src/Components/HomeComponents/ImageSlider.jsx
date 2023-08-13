@@ -6,12 +6,12 @@ import { Carousel } from 'react-responsive-carousel';
 export default function ImageSlider() {
     return (
         <>
-            <div className="w-[100%]  h-max  mr-0 flex justify-center items-center bg-slate-100 pb-16" >
-                <div className="rounded-md md:w-[60%]">
+            <div className="w-[100%]  h-screen  mr-0 flex justify-center items-center py-5 bg-sky-50 max-md:mt-[150%] md:mt-[40%]" >
+                <div className="rounded-md md:w-[60%] p-10 border-2 border-gray-300  shadow-xl">
                     <Carousel
                         autoPlay
                         infiniteLoop
-                        interval={10000}
+                        interval={2000}
                         showStatus={false}//1 of 3
                         showThumbs={false}
                         showArrows={true}
