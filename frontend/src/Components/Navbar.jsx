@@ -22,10 +22,10 @@ const Navbar = () => {
     //     navigate('/')
     // }
     return (
-        <div className='flex justify-between items-center h-20 w-[100%] mx-auto mt-0 md:px-20 px-2 sticky top-0 z-40  text-white bg-cover ' style={{ backgroundImage: `url(${home_2})` }} >
+        <div className='flex justify-between items-center h-20 w-[100%] mt-0 md:px-20 px-2 sticky top-0 z-40 text-black bg-blue-50' >
             <div className="flex items-center gap-2 ">
             <img src={img1} onClick={() => navigate('/')} className='h-[60px] md:h-[60px] p-0 md:w-[60px] rounded-[50%] cursor-pointer ' />
-                <h1 className='text-2xl font-mono '>IT-DEPT</h1>
+                <h1 className='text-2xl font-mono text-blue-500'>IT-DEPT</h1>
             </div>
             <ul className='hidden md:flex'>
                 <Link className='p-4 hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer' to='/' >Home</Link>
