@@ -8,7 +8,6 @@ import Footer from './Footer'
 function Home() {
   return (
     <div>
-      <Navbar/>
       <Top/>
       <ImageSlider/>
       <About />

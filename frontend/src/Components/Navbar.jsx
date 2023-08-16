@@ -30,8 +30,8 @@ const Navbar = () => {
             <ul className='hidden md:flex'>
                 <Link className='p-4 hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer' to='/' >Home</Link>
                 <Link className='p-4 hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer' to='/About'>About</Link>
-                <Link className='p-4 hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer' to='/About'>Faculty</Link>
-                <Link className='p-4 hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer' to='/About'>Curriculum</Link>
+                <Link className='p-4 hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer' to='/Faculty'>Faculty</Link>
+                <Link className='p-4 hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer' to='/Curriculum'>Curriculum</Link>
                 <Link className='p-4 hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer' to='/Contact'>Contact</Link>
                 {/* {!auth?.user ? ( */}
                     <Link className='p-4 hover:text-blue-400 h-max cursor-pointer' to='/Login' >Login</Link>
@@ -80,14 +80,14 @@ const Navbar = () => {
                     <Link to='About' >
                         <li className='pt-4 pl-8 text-black hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer'>About</li>
                     </Link>
-                    <Link to='/Contact'>
-                        <li className='pt-4  pl-8 text-black hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer' to='/Contact'>Faculty</li>
+                    <Link to='/Faculty'>
+                        <li className='pt-4  pl-8 text-black hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer'>Faculty</li>
+                    </Link>
+                    <Link to='/Curriculum'>
+                        <li className='pt-4  pl-8 text-black hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer' >Curriculum</li>
                     </Link>
                     <Link to='/Contact'>
-                        <li className='pt-4  pl-8 text-black hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer' to='/Contact'>Curriculum</li>
-                    </Link>
-                    <Link to='/Contact'>
-                        <li className='pt-4  pl-8 text-black hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer' to='/Contact'>Contact</li>
+                        <li className='pt-4  pl-8 text-black hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer'>Contact</li>
                     </Link>
                     {/* {!auth?.user ? ( */}
                         <Link to='/Login'>
