@@ -30,7 +30,7 @@ const Navbar = () => {
             <ul className='hidden md:flex'>
                 <Link className='p-4 hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer' to='/' >Home</Link>
                 <Link className='p-4 hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer' to='/About'>About</Link>
-                <Link className='p-4 hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer' to='/Faculty'>Faculty</Link>
+                <Link className='p-4 hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer' to='/FacultyDetails'>Faculty</Link>
                 <Link className='p-4 hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer' to='/Curriculum'>Curriculum</Link>
                 <Link className='p-4 hover:underline hover:underline-offset-4 decoration-blue-500 cursor-pointer' to='/Contact'>Contact</Link>
                 {/* {!auth?.user ? ( */}
