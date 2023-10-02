@@ -32,9 +32,9 @@ const Sidebar = () => {
     }
     const [position, setPosition] = useState(false)
     useEffect(() => {
-       setInterval(() => {
-        setLoader(false)
-       }, 2000);
+        setInterval(() => {
+            setLoader(false)
+        }, 2000);
     }, [loader])
     return (
         <>{loader ?
@@ -227,7 +227,7 @@ const Sidebar = () => {
 
                         </nav>
                     </div>
-                    <div className='flex flex-col w-[100%] bg-blue-50'>
+                    <div className='flex flex-col w-[100%] bg-blue-50 min-h-screen h-max'>
                         <div className='w-full h-[70px] flex flex-row justify-between px-2  items-center text-2xl text-blue-500  sticky top-0 bg-white z-10 '>
                             <div className='flex flex-row items-center cursor-pointer' onClick={() => navigate('/')}>
                                 {/* <img className='w-[50px] h-[50px] rounded-[50%] bg-white' src={img1} alt="" /> */}
@@ -245,7 +245,9 @@ const Sidebar = () => {
                                 }
                             </div>
                         </div>
-                        <Outlet className='' />
+                        <div className='overflow-y-scroll pb-10'>
+                            <Outlet className=' ' />
+                        </div>
                     </div>
                 </div>
             </>

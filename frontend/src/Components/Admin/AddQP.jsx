@@ -3,15 +3,15 @@ import { Select } from 'antd'
 import img1 from '../../Images/AddNotes.png'
 import { Option } from 'antd/es/mentions';
 import axios from 'axios'
-import {toast} from 'react-toastify'
-function AddNotes() {
+import { toast } from 'react-toastify'
+function AddQP() {
     const [semesterList, setSemesterList] = useState([]);
     const [subjectList, setSubjectList] = useState([]);
     const [selectedSem, setSelectedSem] = useState('');
     const [selectedSubject, setSelectedSubject] = useState('')
-    const [nName, setNName]=useState('')
-    const [link,setLink]=useState('')
-    
+    const [nName, setNName] = useState('')
+    const [link, setLink] = useState('')
+
     const handleChangeSemester = (value) => {
         setSelectedSem(value);
         setSelectedSubject('');
@@ -54,26 +54,26 @@ function AddNotes() {
         formData.append('subject', selectedSubject);
 
         try {
-            const response = await axios.post('http://localhost:3000/api/v1/add-notes', formData, {
+            const response = await axios.post('http://localhost:3000/api/v1/add-qp', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
 
             if (response.data.success) {
-                toast.success('Notes Added Successfully!', {
+                toast.success('Question Paper Added Successfully!', {
                     autoClose: 2000,
                     position: 'top-center',
                 });
             } else {
-                toast.error('Failed to Add Notes', {
+                toast.error('Failed to Add Question paper', {
                     autoClose: 2000,
                     position: 'top-center',
                 });
             }
         } catch (error) {
             console.error('Error:', error);
-            toast.error('Failed to Add Notes ', {
+            toast.error('Failed to Add Question paper ', {
                 autoClose: 2000,
                 position: 'top-center',
             });
@@ -87,7 +87,7 @@ function AddNotes() {
             <div className="w-100 mt-16 max-md:mt-2 justify-center max-xl:px-2 xl:px-36 ">
                 <div className="w-[100%] flex md:flex-row- max-md:flex-col-reverse p-3 bg-white shadow-xl rounded-md">
                     <div className='w-[100%] text-center  bg-white pb-10 mt-10'>
-                        <h1 className='text-center font-semibold text-2xl underline underline-offset-4'>Add Notes</h1>
+                        <h1 className='text-center font-semibold text-2xl underline underline-offset-4'>Add Question paper</h1>
 
                         <div className="mt-14 max-md:mt-5 flex max-md:flex-col justify-between  items-center md:flex-row px-12 ">
                             <label htmlFor="semesters" className='font-semibold text-xl'>
@@ -115,7 +115,7 @@ function AddNotes() {
                                 id="semesters"
                                 className="max-md:w-[80%] md:w-[57%] font-semibold md:ml-3 focus:outline-none"
                                 placeholder='Select Subject'
-                                  onChange={handleChangeSubject}
+                                onChange={handleChangeSubject}
                             >
                                 {
                                     subjectList.map((subject) => {
@@ -126,9 +126,9 @@ function AddNotes() {
                             </Select>
                         </div>
                         <form className='mt-5 text-black' onSubmit={handleOnSubmit}>
-                            <input type="text" className='text-xl font-semibold placeholder:text-slate-500 border-b-2 border-blue-300  hover:border-blue-900 focus:border-blue-900 focus:outline-none w-[80%] my-2' placeholder='Name' 
-                                onChange={(e)=>setNName(e.target.value )}/>
-                            <input type="text" className='text-xl font-semibold placeholder:text-slate-500 border-b-2 border-blue-300  hover:border-blue-900 focus:border-blue-900 focus:outline-none w-[80%] my-2' placeholder='Link' onChange={(e)=>setLink(e.target.value)} />
+                            <input type="text" className='text-xl font-semibold placeholder:text-slate-500 border-b-2 border-blue-300  hover:border-blue-900 focus:border-blue-900 focus:outline-none w-[80%] my-2' placeholder='Name'
+                                onChange={(e) => setNName(e.target.value)} />
+                            <input type="text" className='text-xl font-semibold placeholder:text-slate-500 border-b-2 border-blue-300  hover:border-blue-900 focus:border-blue-900 focus:outline-none w-[80%] my-2' placeholder='Link' onChange={(e) => setLink(e.target.value)} />
 
                             <br />
                             <button className='mt-8 w-[80%] bg-blue-800 rounded-lg py-2 text-xl text-white cursor-pointer hover:bg-blue-500'>
@@ -136,7 +136,7 @@ function AddNotes() {
                             </button>
                         </form>
                     </div>
-                    <div className='w-[100%] max-md:h-[40%] max-lg:hidden'>
+                    <div className='w-[100%] max-md:h-[40%] max-xl:hidden'>
                         <img className='w-[100%] h-[100%] max-md:h-[200px]' src={img1} alt="" />
                     </div>
 
@@ -146,4 +146,4 @@ function AddNotes() {
     )
 }
 
-export default AddNotes
+export default AddQP
