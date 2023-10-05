@@ -5,17 +5,15 @@ import { Modal } from 'react-responsive-modal';
 import { toast } from 'react-toastify'
 import './AdminComponents.css';
 import BarLoader from 'react-spinners/BarLoader'
-function ManageFaculty() {
-    const [facultyList, setFacultyList] = useState([]);
+function ManageTimeTable() {
+    const [timeTableList, setTimeTableList] = useState([]);
     const [open, setOpen] = useState(false);
-    const [selectedFaculty, setSelectedFaculty] = useState(null);
-    const [selectedFacultyId, setSelectedFacultyId] = useState(null);//for delete record
+    const [selectedTimeTable, setSelectedTimeTable] = useState(null);
+    const [selectedTimeTableId, setSelectedTimeTableId] = useState(null);//for delete record
     const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [qualification, setQualification] = useState('');
-    const [post, setPost] = useState('');
-    const [experience, setExperience] = useState('');
-    const [photo, setPhoto] = useState(null);
+    const [subject, setSubject] = useState('');
+    const [link,setLink ] = useState('');
+    
     const [loader, setLoader] = useState(true)
 
     const handleFileChange = (e) => {
@@ -25,10 +23,10 @@ function ManageFaculty() {
 
     useEffect(() => {
         // Fetch faculty details
-        axios.get('http://localhost:3000/api/v1/manage-faculty')
+        axios.get('http://localhost:3000/api/v1/get-timetables')
             .then((response) => {
                 if (response.data.success) {
-                    setFacultyList(response.data.faculties);
+                    setTimeTableList(response.data.timeTable);
                 } else {
                     console.error('Failed to fetch faculty details');
                 }
@@ -39,51 +37,47 @@ function ManageFaculty() {
             });
     }, []);
 
-    const onOpenModal = (faculty) => {
+    const onOpenModal = (timeTable) => {
         setOpen(true);
-        setSelectedFaculty(faculty);
+        setSelectedTimeTable(timeTable);
         // Set initial values for form fields based on the selected faculty
-        setName(faculty.name);
-        setEmail(faculty.email);
-        setQualification(faculty.qualification);
-        setPost(faculty.post);
-        setExperience(faculty.experience);
+        setName(timeTable.name);
+        setSubject(timeTable.subject);
+        setLink(timeTable.link)
+        
         // Clear the photo field
-        setPhoto(null);
+        
 
     };
     const onCloseModal = () => {
         setOpen(false);
-        setSelectedFaculty(null);
+        setSelectedTimeTable(null);
         // Clear form fields
         setName('');
-        setEmail('');
-        setQualification('');
-        setPost('');
-        setExperience('');
-        setPhoto(null);
+        setSubject('');
+        setLink('')
     };
     // const [updateOrNot, setUpdateOrNot] = useState(1)
     const updateFaculty = (e) => {
         e.preventDefault();
-        let updateOrNot=1;
-        const arr = [name, email, qualification, post, experience];
-        let countLoop=0;
+        let updateOrNot = 1;
+        const arr = [name, subject,link];
+        let countLoop = 0;
         arr.map((item, key) => {
-            
+
             if (item.replace(/\s+/g, '') === '') {
                 countLoop += 1
                 // setUpdateOrNot(0)
-                updateOrNot=0
-                if(countLoop <= 1)
-                toast.error('Every Field must filled',{
-                    autoClose:2000,
-                    position:'top-center'
-                })
-                
+                updateOrNot = 0
+                if (countLoop <= 1)
+                    toast.error('Every Field must filled', {
+                        autoClose: 2000,
+                        position: 'top-center'
+                    })
+
             }
         })
-        if(updateOrNot===1) {
+        if (updateOrNot === 1) {
             const formData = new FormData();
             formData.append('name', name);
             formData.append('email', email.replace(/\s+/g, ''));
@@ -94,23 +88,22 @@ function ManageFaculty() {
                 formData.append('photo', photo);
             }
 
-            axios.put(`http://localhost:3000/api/v1/update-faculty/${selectedFaculty._id}`, formData)
+            axios.put(`http://localhost:3000/api/v1/update-faculty/${selectedTimeTable._id}`, formData)
                 .then((response) => {
-                    
+
                     if (response.data.success) {
-                      
-                        // Update facultyList with the updated faculty data
-                        setFacultyList((prevFacultyList) =>
-                            prevFacultyList.map((faculty) =>
-                                faculty._id === selectedFaculty._id ? response.data.updatedFaculty : faculty
-                            )
-                        );
+
+                        // Update timeTableList with the updated faculty data
                         toast.success('Faculty Details Updated Successfully', {
                             autoClose: 2000,
                             closeButton: true,
                             position: "top-center"
                         })
-                        
+                        setTimeTableList((prevTimeTableList) =>
+                            prevTimeTableList.map((timeTable) =>
+                                timeTable._id === selectedTimeTable._id ? response.data.updatedTimeTable : timeTable
+                            )
+                        );
                         onCloseModal();
                     } else {
                         toast.error('Email Already Exist',
@@ -125,28 +118,28 @@ function ManageFaculty() {
                     console.error('Error:', error);
                 });
         }
-        
+
     };
 
     const [openDelete, setOpenDelete] = useState(false)
     const onOpenDeleteModal = (facultyId) => {
         setOpenDelete(true);
-        setSelectedFacultyId(facultyId)
+        setSelectedTimeTableId(facultyId)
     }
     const onCloseDeleteModal = () => {
         setOpenDelete(false)
-        setSelectedFacultyId(null)
+        setSelectedTimeTableId(null)
     }
 
     const handleDelete = (e) => {
         e.preventDefault();
-        if (selectedFacultyId._id) {
-            axios.delete(`http://localhost:3000/api/v1/delete-faculty/${selectedFacultyId._id}`)
+        if (selectedTimeTableId._id) {
+            axios.delete(`http://localhost:3000/api/v1/delete-faculty/${selectedTimeTableId._id}`)
                 .then((response) => {
                     if (response.data.success) {
-                        setFacultyList((prevFacultyList) =>
-                            prevFacultyList.filter(
-                                (faculty) => faculty._id !== selectedFacultyId._id
+                        setTimeTableList((prevtimeTableList) =>
+                            prevtimeTableList.filter(
+                                (faculty) => faculty._id !== selectedTimeTableId._id
                             )
                         );
                         toast.success('Faculty deleted successfully !',
@@ -154,8 +147,8 @@ function ManageFaculty() {
                                 autoClose: 2000,
                                 position: 'top-center'
                             })
-                        // Remove the deleted faculty from the facultyList
-                        
+                        // Remove the deleted faculty from the timeTableList
+
                     } else {
                         toast.error('Failed to delete faculty', {
                             autoClose: 2000,
@@ -176,49 +169,42 @@ function ManageFaculty() {
 
     return (
         <div className='h-screen bg-blue-50'>
-            <div className="w-100  mt-10 max-md:mt-2 md:flex justify-center max-xl:px-2 items-center pb-20">
+            <div className="w-100  mt-10 max-md:mt-2 md:flex justify-center max-xl:px-2 items-center">
                 {loader ? <div className='flex flex-col justify-center  items-center'>
                     <BarLoader color="blue"
 
                     />
                 </div>
                     :
-                    <div className='text-center overflow-y-auto max-xl:max-h-[500px] max-h-[600px] rounded-md '>
+                    <div className='text-center overflow-y-auto max-h-[600px]  rounded-md '>
                         <table className='w-max border-collapse rounded-md '>
-                        <thead className='sticky top-0 '>
+                            <thead className='sticky top-0 '>
                                 <tr className='bg-slate-950 text-white border-slate-950'>
-                                <th className='   py-2 px-2'>SR.No</th>
-                                <th className='  py-2 px-2'>Name</th>
-                                <th className='  py-2 px-2'>Email</th>
-                                <th className='  py-2 px-2'>Post</th>
-                                <th className='  py-2 px-2'>Qualification</th>
-                                <th className='  py-2 px-2'>Experience</th>
-                                <th className='  py-2 px-2'>Photo</th>
-                                <th className='  py-2 px-2'>Edit</th>
-                            </tr>
-                        </thead>
-                            <tbody className='bg-slate-800 text-white '>
-                            {facultyList.map((faculty, index) => (
-                                <tr key={faculty._id} className='border-2 border-gray-700'>
-                                    <td className='  py-2 px-2'>{index + 1}</td>
-                                    <td className='  py-2 px-2'>{faculty.name}</td>
-                                    <td className='  py-2 px-2'>{faculty.email}</td>
-                                    <td className='  py-2 px-2'>{faculty.post}</td>
-                                    <td className='  py-2 px-2'>{faculty.qualification}</td>
-                                    <td className='  py-2 px-2'>{faculty.experience}</td>
-                                    <td className='  py-2 px-2'>
-                                        <img className='w-[100px] h-[100px]' src={faculty.photo} alt="" />
-                                    </td>
-                                    <td className='  py-2 px-2'>
-                                        <div className='flex flex-row gap-2 justify-center'>
-                                            <button className='text-white font-semibold  bg-green-700 py-1 px-2 rounded-md' onClick={() => onOpenModal(faculty)}>Update</button>
-                                            <button className='text-white font-semibold bg-red-700  py-1 px-2 rounded-md' onClick={() => onOpenDeleteModal(faculty)}>Delete</button>
-                                        </div>
-                                    </td>
+                                    <th className='border border-gray-400  py-2 px-2'>SR.No</th>
+                                    <th className='border border-gray-400 py-2 px-2'>Name</th>
+                                    <th className='border border-gray-400 py-2 px-2'>Subject</th>
+                                    <th className='border border-gray-400 py-2 px-2'>Notes</th>
+                                    <th className='border border-gray-400 py-2 px-2'>Edit</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className='bg-slate-800 text-white '>
+                                {timeTableList.map((timeTable, index) => (
+                                    <tr key={timeTable._id}>
+                                        <td className='border border-gray-400 py-2 px-2'>{index + 1}</td>
+                                        <td className='border border-gray-400 py-2 px-2'>{timeTable.name}</td>
+                                        <td className='border border-gray-400 py-2 px-2'>{timeTable.subject}</td>
+                                        <td className='border border-gray-400 py-2 px-2'>{timeTable.link}</td>
+                                                                               
+                                        <td className='border border-gray-400 py-2 px-2'>
+                                            <div className='flex flex-row gap-2 justify-center'>
+                                                <button className='text-white font-semibold  bg-green-700 py-1 px-2 rounded-md' onClick={() => onOpenModal(timeTable)}>Update</button>
+                                                <button className='text-white font-semibold bg-red-700  py-1 px-2 rounded-md' onClick={() => onOpenDeleteModal(timeTable)}>Delete</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 }
             </div>
@@ -286,4 +272,4 @@ function ManageFaculty() {
     );
 }
 
-export default ManageFaculty;
+export default ManageTimeTable;

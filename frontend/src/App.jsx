@@ -17,6 +17,7 @@ import AddTT from "./Components/Admin/AddTT"
 import AddNotice from "./Components/Admin/AddNotice"
 import ManageFaculty from "./Components/Admin/ManageFaculty"
 import 'react-toastify/dist/ReactToastify.css';
+import ManageNotes from "./Components/Admin/ManageNotes"
 function App() {
   
   return (
@@ -39,7 +40,7 @@ function App() {
             <Route exact path='/Admin/AddFaculty' element={<AddFaculty />}></Route>
             <Route exact path='/Admin/ManageFaculty' element={<ManageFaculty/>}></Route>
             <Route exact path='/Admin/AddNotes' element={<AddNotes />}></Route>
-            <Route exact path='/Admin/ManageNotes' element={<AddFaculty />}></Route>
+            <Route exact path='/Admin/ManageNotes' element={<ManageNotes />}></Route>
             <Route exact path='/Admin/AddQP' element={<AddQP/>}></Route>
             <Route exact path='/Admin/ManageQP' element={<AddFaculty />}></Route>
             <Route exact path='/Admin/AddTimeTable' element={<AddTT/>}></Route>

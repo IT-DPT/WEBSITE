@@ -11,7 +11,8 @@ function AddNotes() {
     const [selectedSubject, setSelectedSubject] = useState('')
     const [nName, setNName]=useState('')
     const [link,setLink]=useState('')
-    
+    // const [subjectName,setSubjectName]=useState('')
+    // const [semesterName,setSemesterName]=useState('')
     const handleChangeSemester = (value) => {
         setSelectedSem(value);
         setSelectedSubject('');
@@ -20,7 +21,7 @@ function AddNotes() {
     const handleChangeSubject = (value) => {
         setSelectedSubject(value);
         console.log(value);
-    };
+    }
     const allSem = () => {
         axios.get('http://localhost:3000/api/v1/get-semesters').then((response) => {
             if (response.data.success) {
@@ -52,6 +53,7 @@ function AddNotes() {
         formData.append('name', nName);
         formData.append('link', link);
         formData.append('subject', selectedSubject);
+        formData.append('semester', selectedSem);
 
         try {
             const response = await axios.post('http://localhost:3000/api/v1/add-notes', formData, {
@@ -66,7 +68,7 @@ function AddNotes() {
                     position: 'top-center',
                 });
             } else {
-                toast.error('Failed to Add Notes', {
+                toast.error('Note already Exist with this name', {
                     autoClose: 2000,
                     position: 'top-center',
                 });
@@ -119,6 +121,7 @@ function AddNotes() {
                             >
                                 {
                                     subjectList.map((subject) => {
+                                    
                                         return <Option key={subject._id} value={subject._id} >{subject.name}</Option>
                                     })
                                 }
