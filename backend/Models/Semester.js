@@ -4,19 +4,19 @@ const semesterSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  subjects: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Subject",
-    },
-  ],
-  shift: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Shift",
-    },
-  ],
+  // subjects: [
+  //   {
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: "Subject",
+  //   },
+  // ],
+  // shift: [
+  //   {
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: "Shift",
+  //   },
+  // ],
 });
 
-const semester = mongoose.model("semester",semesterSchema);
+const semester = mongoose.model("Semester",semesterSchema);
 module.exports = semester;

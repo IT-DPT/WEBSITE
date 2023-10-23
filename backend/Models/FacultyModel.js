@@ -5,20 +5,24 @@ const facultySchema = new mongoose.Schema({
     required: true,
   },
   email: {
-    type: String,
+    type:String,
+    required:true
+  },
+  phone: {
+    type: Number,
     required: true,
   },
   password: {
     type: String,
-    require: true,
+    required: true,
   },
   qualification: {
     type: String,
-    require: true,
+    required: true,
   },
   post: {
     type: String,
-    require: true,
+    required: true,
   },
   experience: {
     type: String,
@@ -26,7 +30,7 @@ const facultySchema = new mongoose.Schema({
   },
   photo: {
     type: String,
-    require: true,
+    required: true,
   },
   role: {
     type: Number,
@@ -34,7 +38,7 @@ const facultySchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now, // Set the default value to the current date and time
+    default: Date.now,
   },
 });
 

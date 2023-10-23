@@ -3,7 +3,7 @@ import { Select } from 'antd'
 import img1 from '../../Images/AddNotes.png'
 import { Option } from 'antd/es/mentions';
 import axios from 'axios'
-import { toast } from 'react-toastify'
+import toast from 'react-hot-toast';
 function AddQP() {
     const [semesterList, setSemesterList] = useState([]);
     const [subjectList, setSubjectList] = useState([]);
@@ -11,7 +11,8 @@ function AddQP() {
     const [selectedSubject, setSelectedSubject] = useState('')
     const [nName, setNName] = useState('')
     const [link, setLink] = useState('')
-
+    const [role, setRole] = useState(1)
+    const urlBackend = import.meta.env.VITE_BACKEND_API
     const handleChangeSemester = (value) => {
         setSelectedSem(value);
         setSelectedSubject('');
@@ -22,7 +23,7 @@ function AddQP() {
         console.log(value);
     };
     const allSem = () => {
-        axios.get('http://localhost:3000/api/v1/get-semesters').then((response) => {
+        axios.get(`${urlBackend}/api/v1/get-semesters`).then((response) => {
             if (response.data.success) {
                 setSemesterList(response.data.semesters);
             } else {
@@ -34,7 +35,7 @@ function AddQP() {
     };
 
     const allSubjects = (selectedSemesterId) => {
-        axios.get(`http://localhost:3000/api/v1/subjects/${selectedSemesterId}`).then((response) => {
+        axios.get(`${urlBackend}/api/v1/subjects/${selectedSemesterId}`).then((response) => {
             if (response.data.success) {
                 setSubjectList(response.data.subjects);
             } else {
@@ -47,14 +48,58 @@ function AddQP() {
 
     const handleOnSubmit = async (e) => {
         e.preventDefault();
+        let updateOrNot = 1;
+        const arr = [selectedSem,selectedSubject,nName, link];
+        let countLoop = 0;
+        arr.map((item, index) => {
+            if (typeof item === 'string') {
+                item = item.replace(/\s+/g, ''); // Assign the result back to item
+            }
+            if (typeof item === 'string') {
+                item = item.trim(); // Assign the result back to item
+            }
+            if (item === '') {
+                countLoop += 1
+                // setUpdateOrNot(0)
+                updateOrNot = 0
+                if (countLoop <= 1) {
 
+                    if (index === 0) {
+                        toast.error('Please Select semester', {
+                            autoClose: 2000,
+                            position: 'bottom-center'
+                        })
+                    } else if (index === 1) {
+                        toast.error('Please Select Subject', {
+                            autoClose: 2000,
+                            position: 'bottom-center'
+                        })
+                    }
+                     else if (index === 2) {
+                        toast.error('Name Field must filled', {
+                            autoClose: 2000,
+                            position: 'bottom-center'
+                        })
+                    }
+                     else if (index === 3) {
+                        toast.error('Please provide the link', {
+                            autoClose: 2000,
+                            position: 'bottom-center'
+                        })
+                    }
+                }
+            }
+        })
+        if (updateOrNot === 1) {
         const formData = new FormData();
         formData.append('name', nName);
         formData.append('link', link);
         formData.append('subject', selectedSubject);
+        formData.append('semester', selectedSem);
+        formData.append('role', role);
 
         try {
-            const response = await axios.post('http://localhost:3000/api/v1/add-qp', formData, {
+            const response = await axios.post(`${urlBackend}/api/v1/add-qp`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -63,33 +108,34 @@ function AddQP() {
             if (response.data.success) {
                 toast.success('Question Paper Added Successfully!', {
                     autoClose: 2000,
-                    position: 'top-center',
+                    position: 'bottom-center',
                 });
             } else {
-                toast.error('Failed to Add Question paper', {
+                toast.error('Question paper with name Already Exist', {
                     autoClose: 2000,
-                    position: 'top-center',
+                    position: 'bottom-center',
                 });
             }
         } catch (error) {
             console.error('Error:', error);
             toast.error('Failed to Add Question paper ', {
                 autoClose: 2000,
-                position: 'top-center',
+                position: 'bottom-center',
             });
         }
+    }
     };
     useEffect(() => {
         allSem()
     })
     return (
         <div className='h-screen overflow-y-scroll pb-10 bg-blue-50'>
-            <div className="w-100 mt-16 max-md:mt-2 justify-center max-xl:px-2 xl:px-36 ">
-                <div className="w-[100%] flex md:flex-row- max-md:flex-col-reverse p-3 bg-white shadow-xl rounded-md">
-                    <div className='w-[100%] text-center  bg-white pb-10 mt-10'>
+            <div className="w-[100%] mt-10 max-md:mt-2 flex justify-center items-center max-xl:px-2 ">
+                <div className="lg:w-[80%] flex md:flex-row- max-md:flex-col-reverse p-2 bg-white shadow-xl rounded-md pb-5">
+                    <div className='w-[100%] text-center  bg-white  mt-5 flex flex-col justify-center items-center'>
                         <h1 className='text-center font-semibold text-2xl underline underline-offset-4'>Add Question paper</h1>
 
-                        <div className="mt-14 max-md:mt-5 flex max-md:flex-col justify-between  items-center md:flex-row px-12 ">
+                        <div className="mt-5 max-md:mt-5 flex max-md:flex-col justify-between  items-center md:flex-row w-[80%] ">
                             <label htmlFor="semesters" className='font-semibold text-xl'>
                                 Select Semester:
                             </label>
@@ -99,7 +145,7 @@ function AddQP() {
                                 placeholder='Select Semester'
                                 onChange={handleChangeSemester}
                             >
-                                {semesterList.map((semester) => (
+                                {semesterList?.map((semester) => (
                                     <Option key={semester._id} value={semester._id}>
                                         {semester.name}
                                     </Option>
@@ -107,7 +153,7 @@ function AddQP() {
 
                             </Select>
                         </div>
-                        <div className="mt-5 flex max-md:flex-col justify-between  items-center md:flex-row px-12">
+                        <div className="mt-5 flex max-md:flex-col justify-between  items-center md:flex-row w-[80%] ">
                             <label htmlFor="semesters" className='font-semibold text-xl'>
                                 Select Subject:
                             </label>
@@ -118,7 +164,7 @@ function AddQP() {
                                 onChange={handleChangeSubject}
                             >
                                 {
-                                    subjectList.map((subject) => {
+                                    subjectList?.map((subject) => {
                                         return <Option key={subject._id} value={subject._id} >{subject.name}</Option>
                                     })
                                 }
@@ -128,7 +174,7 @@ function AddQP() {
                         <form className='mt-5 text-black' onSubmit={handleOnSubmit}>
                             <input type="text" className='text-xl font-semibold placeholder:text-slate-500 border-b-2 border-blue-300  hover:border-blue-900 focus:border-blue-900 focus:outline-none w-[80%] my-2' placeholder='Name'
                                 onChange={(e) => setNName(e.target.value)} />
-                            <input type="text" className='text-xl font-semibold placeholder:text-slate-500 border-b-2 border-blue-300  hover:border-blue-900 focus:border-blue-900 focus:outline-none w-[80%] my-2' placeholder='Link' onChange={(e) => setLink(e.target.value)} />
+                            <input type="url" className='text-xl font-semibold placeholder:text-slate-500 border-b-2 border-blue-300  hover:border-blue-900 focus:border-blue-900 focus:outline-none w-[80%] my-2' placeholder='Link' onChange={(e) => setLink(e.target.value)} />
 
                             <br />
                             <button className='mt-8 w-[80%] bg-blue-800 rounded-lg py-2 text-xl text-white cursor-pointer hover:bg-blue-500'>

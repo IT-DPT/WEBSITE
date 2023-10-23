@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Select } from 'antd';
 import { Option } from 'antd/es/mentions';
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 import img1 from '../../Images/add_time_table.png'
 function AddTT() {
     const [semesterList, setSemesterList] = useState([]);
@@ -11,7 +11,7 @@ function AddTT() {
     const [selectedShift, setSelectedShift] = useState('');
     const [tName, setTName] = useState('');
     const [photo, setPhoto] = useState(null); // Use null to represent no selected file
-
+    const urlBackend = import.meta.env.VITE_BACKEND_API
     const handleChangeSemester = (value) => {
         setSelectedSem(value);
         setSelectedShift('');
@@ -29,7 +29,7 @@ function AddTT() {
 
     const allSem = () => {
         axios
-            .get('http://localhost:3000/api/v1/get-semesters')
+            .get(`${urlBackend}/api/v1/get-semesters`)
             .then((response) => {
                 if (response.data.success) {
                     setSemesterList(response.data.semesters);
@@ -43,8 +43,7 @@ function AddTT() {
     };
 
     const allShifts = (selectedSemesterId) => {
-        axios
-            .get(`http://localhost:3000/api/v1/shifts/${selectedSemesterId}`)
+        axios.get(`${urlBackend}/api/v1/get-shifts/${selectedSemesterId}`)
             .then((response) => {
                 if (response.data.success) {
                     setShiftList(response.data.shifts);
@@ -63,10 +62,11 @@ function AddTT() {
         const formData = new FormData();
         formData.append('name', tName);
         formData.append('photo', photo);
+        formData.append('semester', selectedSem);
         formData.append('shift', selectedShift);
 
         try {
-            const response = await axios.post('http://localhost:3000/api/v1/addTT', formData, {
+            const response = await axios.post(`${urlBackend}/api/v1/addTT`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -75,19 +75,19 @@ function AddTT() {
             if (response.data.success) {
                 toast.success('Time Table Uploaded Successfully!', {
                     autoClose: 2000,
-                    position: 'top-center',
+                    position: 'bottom-center',
                 });
             } else {
                 toast.error('Failed to Upload Time Table', {
                     autoClose: 2000,
-                    position: 'top-center',
+                    position: 'bottom-center',
                 });
             }
         } catch (error) {
             console.error('Error:', error);
             toast.error('Failed to Upload Time Table', {
                 autoClose: 2000,
-                position: 'top-center',
+                position: 'bottom-center',
             });
         }
     };
@@ -113,7 +113,7 @@ function AddTT() {
                                 placeholder='Select Semester'
                                 onChange={handleChangeSemester}
                             >
-                                {semesterList.map((semester) => (
+                                {semesterList?.map((semester) => (
                                     <Option key={semester._id} value={semester._id}>
                                         {semester.name}
                                     </Option>
@@ -130,7 +130,7 @@ function AddTT() {
                                 placeholder='Select Shift'
                                 onChange={handleChangeShift}
                             >
-                                {shiftList.map((shift) => (
+                                {shiftList?.map((shift) => (
                                     <Option key={shift._id} value={shift._id}>
                                         {shift.name}
                                     </Option>
@@ -140,8 +140,8 @@ function AddTT() {
                         <form className='mt-2 text-black' onSubmit={handleOnSubmit}>
                             <input
                                 type='text'
-                                className='mt-5 text-xl font-semibold placeholder:text-slate-500 border-b-2 border-blue-300  hover:border-blue-900 focus:border-blue-900 focus:outline-none w-[80%] '
-                                placeholder='Name'
+                                className='mt-5 text-xl font-semibold placeholder:text-slate-400 border-b-2 border-blue-300  hover:border-blue-900 focus:border-blue-900 focus:outline-none w-[80%] '
+                                placeholder='Name e.g.(FYFS)'
                                 onChange={(e) => setTName(e.target.value)}
                                 required
                             />

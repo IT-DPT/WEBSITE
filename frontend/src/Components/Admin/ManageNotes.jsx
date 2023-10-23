@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'react-responsive-modal/styles.css';
 import { Modal } from 'react-responsive-modal';
-import {toast} from 'react-toastify'
+import toast from 'react-hot-toast';
 import './AdminComponents.css';
 import BarLoader from 'react-spinners/BarLoader'
 import {Link} from 'react-router-dom'
@@ -12,8 +12,8 @@ function ManageNotes() {
     const [open, setOpen] = useState(false);
     const [notesList, setNotesList] = useState('')
     const [loader, setLoader] = useState(true)
+    const [search, setSearch] = useState('')
     const [selectedNote, setSelectedNote] = useState(null)
-
     const [semesterList, setSemesterList] = useState([]);
     const [subjectList, setSubjectList] = useState([]);
     const [selectedSem, setSelectedSem] = useState('');
@@ -22,17 +22,26 @@ function ManageNotes() {
     const [link, setLink] = useState('')
     const [subjectPlaceholder, setSubjectPlaceholder] = useState('')
     const [semesterPlaceholder, setSemesterPlaceholder] = useState('')
+    const urlBackend = import.meta.env.VITE_BACKEND_API
     const handleChangeSemester = (value) => {
         setSelectedSem(value);
         setSelectedSubject('');
         allSubjects(value);
+        
     };
     const handleChangeSubject = (value) => {
         setSelectedSubject(value);
         console.log(value);
     }
+    const FilterBySemester=(value)=>{
+        getNotesBySemester(value)
+        allSubjects(value);
+    }
+    const FilterBySubject = (value) => {
+        getNotesBySubject(value)
+    }
     const allSubjects = (selectedSemesterId) => {
-        axios.get(`http://localhost:3000/api/v1/subjects/${selectedSemesterId}`).then((response) => {
+        axios.get(`${urlBackend}/api/v1/subjects/${selectedSemesterId}`).then((response) => {
             if (response.data.success) {
                 setSubjectList(response.data.subjects);
             } else {
@@ -44,7 +53,7 @@ function ManageNotes() {
     }
 
     const allSem = () => {
-        axios.get('http://localhost:3000/api/v1/get-semesters').then((response) => {
+        axios.get(`${urlBackend}/api/v1/get-semesters`).then((response) => {
             if (response.data.success) {
                 setSemesterList(response.data.semesters);
             } else {
@@ -56,9 +65,11 @@ function ManageNotes() {
     };
     useEffect(() => {
        getNotes()
+       allSem()
     }, [])
         const getNotes=()=>{
-        axios.get('http://localhost:3000/api/v1/get-notes').then((response) => {
+        setLoader(true)
+        axios.get(`${urlBackend}/api/v1/get-notes`).then((response) => {
             if (response.data.success) {
                 setNotesList(response.data.notes);
                 console.log(response.data.notes)
@@ -72,7 +83,75 @@ function ManageNotes() {
                 console.error('Error:', error);
             });
         }
-    
+    const getNotesBySemester = (value) => {
+        setLoader(true)
+        axios
+            .get(`${urlBackend}/api/v1/get-notes-by-semester/${value}`)
+            .then((response) => {
+                if (response.data.success) {
+                    setNotesList(response.data.notes);
+                    setLoader(false)
+                    console.log(response.data.notes);
+                } else {
+                    console.log(response.data.message);
+                    setInterval(() => {
+                        setLoader(false)
+                    }, 2000);
+
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                setInterval(() => {
+                    setLoader(false)
+                }, 2000);
+
+            });
+    }
+    const getNotesBySubject = (value) => {
+        setLoader(true)
+        axios.get(`${urlBackend}/api/v1/get-notes-by-subject/${value}`)
+            .then((response) => {
+                if (response.data.success) {
+                    setNotesList(response.data.notes);
+                    setLoader(false)
+                    console.log(subjectId);
+                    console.log(response.data.notes);
+                } else {
+                    console.log(response.data.message);
+                    setInterval(() => {
+                        setLoader(false)
+                    }, 2000);
+
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                setInterval(() => {
+                    setLoader(false)
+                }, 2000);
+
+            });
+    }
+    const handleSearch = async (e) => {
+        e.preventDefault();
+        setLoader(true);
+        try {
+            const response = await axios.get(`${urlBackend}/api/v1/search-note`, {
+                params: { search },
+            });
+            setNotesList(response.data.notes);
+            setInterval(() => {
+                setLoader(false)
+            }, 2000);
+
+        } catch (error) {
+            console.error('Error fetching notes:', error);
+            setInterval(() => {
+                setLoader(false)
+            }, 2000);
+        }
+    };
     const onOpenModal = (note) => {
         setOpen(true);
         setSelectedNote(note)
@@ -107,7 +186,7 @@ function ManageNotes() {
     const handleDelete = (e) => {
         e.preventDefault();
         if (selectedNote._id) {
-            axios.delete(`http://localhost:3000/api/v1/delete-note/${selectedNote._id}`)
+            axios.delete(`${urlBackend}/api/v1/delete-note/${selectedNote._id}`)
                 .then((response) => {
                     if (response.data.success) {
                         getNotes()
@@ -119,12 +198,12 @@ function ManageNotes() {
                         toast.success('Note deleted successfully !',
                             {
                                 autoClose: 2000,
-                                position: 'top-center'
+                                position: 'bottom-center'
                             })
                     } else {
                         toast.error('Failed to delete note', {
                             autoClose: 2000,
-                            position: 'top-center'
+                            position: 'bottom-center'
                         });
                     }
                     onCloseDeleteModal();
@@ -132,7 +211,7 @@ function ManageNotes() {
                 .catch((error) => {
                     toast.error(error, {
                         autoClose: 2000,
-                        position: 'top-center'
+                        position: 'bottom-center'
                     });
                 });
         }
@@ -144,7 +223,7 @@ function ManageNotes() {
         let updateOrNot = 1;
         const arr = [nName, link, selectedSubject, selectedSem];
         let countLoop = 0;
-        arr.map((item, key) => {
+        arr.map((item) => {
             item.replace(/\s+/g, '')
             if (item.trim() === '') {
                 countLoop += 1
@@ -153,7 +232,7 @@ function ManageNotes() {
                 if (countLoop <= 1)
                     toast.error('Every Field must filled', {
                         autoClose: 2000,
-                        position: 'top-center'
+                        position: 'bottom-center'
                     })
             }
         })
@@ -166,7 +245,7 @@ function ManageNotes() {
             formData.append('subject', selectedSubject);
 
 
-            axios.put(`http://localhost:3000/api/v1/update-note/${selectedNote._id}`, formData)
+            axios.put(`${urlBackend}/api/v1/update-note/${selectedNote._id}`, formData)
                 .then((response) => {
 
                     if (response.data.success) {
@@ -180,7 +259,7 @@ function ManageNotes() {
                         toast.success('Note Updated Successfully', {
                             autoClose: 2000,
                             closeButton: true,
-                            position: "top-center"
+                            position: "bottom-center"
                         })
                         
                         onCloseModal();
@@ -188,7 +267,7 @@ function ManageNotes() {
                         toast.error('Note or Name is already exist',
                             {
                                 autoClose: 2000,
-                                position: 'top-center'
+                                position: 'bottom-center'
                             }
                         );
                     }
@@ -201,36 +280,93 @@ function ManageNotes() {
     };
     return (
         <div className='h-screen bg-blue-50'>
-            <div className="w-100  mt-10 max-md:mt-2 md:flex justify-center max-xl:px-2 items-center">
-                {loader ? <div className='flex flex-col justify-center  items-center'>
-                    <BarLoader color="blue"
+            <div className="w-[100%] max-md:mt-2 md:flex flex-col justify-center items-center">
+                <div className=" px-2 flex  w-[100%] flex-row justify-between sticky top-0 p-2" style={{ backgroundColor: 'rgb(0,0,0,0.1)' }}>
+                    <div className='w-[60%]'>
+                        <button className='py-2 w-[60%]  max-md:text-sm font-semibold bg-blue-700 text-white rounded-md shadow-md hover:bg-blue-700 hover:text-white' onClick={getNotes}>All Notes</button>
+                    </div>
+                    <form onSubmit={handleSearch} className='w-[100%] flex justify-center items-center max-lg:w-[100%] '>
+                        <input type="text " className=' w-[100%] rounded-xl h-[40px] max-lg:h-[30px] bg-blue-50  px-4 focus:border-blue-400 focus:outline-none border' placeholder='Search Here ....' value={search}
+                            onChange={(e) => setSearch(e.target.value)} />
+                    </form>
+                </div>
+                <div className=" flex w-[100%] flex-row justify-between sticky top-0 p-2 gap-4 " >
+                    <div className=" flex max-md:flex-col justify-center  items-center md:flex-row w-[100%]">
+                        <label htmlFor="semesters" className='font-semibold text-xl max-md:text-[15px]'>
+                            Select Semester:
+                        </label>
+                        <Select
+                            id="semesters"
+                            className="max-md:text-sm max-md:w-[80%] md:w-[57%] font-semibold md:ml-3 focus:outline-none"
+                            placeholder='Notes By Semester'
+                            onChange={FilterBySemester}
+                        >
+                            {semesterList?.map((semester) => (
+                                <Option key={semester._id} value={semester._id}>
+                                    {semester.name}
+                                </Option>
+                            ))}
 
-                    />
+                        </Select>
+                    </div>
+                    <div className="flex max-md:flex-col justify-center  items-center md:flex-row w-[100%]">
+                        <label htmlFor="semesters" className='font-semibold text-xl max-md:text-[15px] '>
+                            Select Subject:
+                        </label>
+                        <Select
+                            id="semesters"
+                            className="max-md:text-sm max-md:w-[80%] md:w-[57%] font-semibold md:ml-3 focus:outline-none placeholder-blue-500 "
+                            placeholder='Notes By Subject'
+                            onChange={FilterBySubject}
+                        >
+                            {
+                                subjectList?.map((subject) => {
+                                    return <Option key={subject._id} value={subject._id} >{subject.name}</Option>
+                                })
+                            }
+                        </Select>
+                    </div>
+                </div>
+                {loader ? <div className='flex justify-center items-center mt-32'>
+                    <BarLoader color="blue"/>
                 </div>
                     :
-                    <div className='text-center overflow-y-auto max-h-[600px]  rounded-md '>
-                        <table className='w-max border-2 rounded-md '>
+                    <div className='md:w-[100%] px-2'>
+                    <div className='text-left overflow-y-auto max-h-[500px] max-xl:max-h-[460px] rounded-md w-[100%]'>
+                        <table className='w-[100%] border-2 rounded-md '>
                             <thead className='sticky top-0 '>
-                                <tr className='bg-slate-950 text-white border-2 border-slate-950'>
-                                    <th className='   py-2 px-2'>SR.No</th>
-                                    <th className='  py-2 px-2'>Name</th>
-                                    <th className='  py-2 px-2'>Semester</th>
-                                    <th className='  py-2 px-2'>Subject</th>
-                                    <th className='  py-2 px-2'>Notes</th>
-                                    <th className='  py-2 px-2'>Edit</th>
+                                <tr className='bg-slate-950 text-lg max-md:text-sm text-white border-2 border-slate-950'>
+                                    <th className='   py-2 px-4'>SR.No</th>
+                                    <th className='  py-2 px-4'>Name</th>
+                                    <th className='  py-2 px-4'>Semester</th>
+                                    <th className='  py-2 px-4'>Subject</th>
+                                    <th className='  py-2 px-4'>Notes</th>
+                                    <th className='  py-2 px-4'>Edit</th>
                                 </tr>
                             </thead>
-                            <tbody className='bg-slate-800 text-white '>
-                                {notesList.map((note, index) => (
+                            
+                            {notesList?.length === 0 ?
+                                <tr className=''>
+                                    <td className='p-2 w-24'></td>
+                                    <td className='p-2 w-24'></td>
+                                    <td className='p-6 w-44 font-semibold'>No Data Found</td>
+                                    <td className='p-2 w-20'></td>
+                                    <td className='p-2 w-20'></td>
+                                    <td className='p-2 w-20'></td>
+                                </tr>
+                                :
+                            
+                                    <tbody className='bg-slate-800 text-white max-md:text-sm '>
+                                {notesList?.map((note, index) => (
                                     <tr key={note._id} className='border-2 border-gray-700'>
-                                        <td className='  py-2 px-2'>{index + 1}</td>
-                                        <td className='  py-2 px-2'>{note.name}</td>
-                                        <td className='  py-2 px-2'>{note.semester.name}</td>
-                                        <td className='  py-2 px-2'>{note.subject.name}</td>
-                                        <td className='  py-2 px-2' ><Link target="_blank" to={note.link}>view</Link></td>
+                                        <td className='  py-2 px-4'>{index + 1}</td>
+                                        <td className='  py-2 px-4'>{note.name}</td>
+                                        <td className='  py-2 px-4'>{note.semester.name}</td>
+                                        <td className='  py-2 px-4'>{note.subject.name}</td>
+                                        <td className='  py-2 px-4' ><Link target="_blank" to={note.link}>view</Link></td>
 
-                                        <td className='  py-2 px-2'>
-                                            <div className='flex flex-row gap-2 justify-center'>
+                                        <td className='  py-2 px-4'>
+                                            <div className='flex flex-row gap-4 justify-left'>
                                                 <button className='text-white font-semibold  bg-green-700 py-1 px-2 rounded-md' onClick={() => onOpenModal(note)} >Update</button>
                                                 <button className='text-white font-semibold bg-red-700  py-1 px-2 rounded-md' onClick={() => onOpenDeleteModal(note)}>Delete</button>
                                             </div>
@@ -238,8 +374,10 @@ function ManageNotes() {
                                     </tr>
                                 ))}
                             </tbody>
+}
                         </table>
                     </div>
+            </div>
                 }
             </div>
 
@@ -258,7 +396,7 @@ function ManageNotes() {
                             defaultValue={semesterPlaceholder}
                             onChange={handleChangeSemester}
                         >
-                            {semesterList.map((semester) => (
+                            {semesterList?.map((semester) => (
                                 <Option key={semester._id} value={semester._id}>
                                     {semester.name}
                                 </Option>
@@ -277,7 +415,7 @@ function ManageNotes() {
                             onChange={handleChangeSubject}
                         >
                             {
-                                subjectList.map((subject) => {
+                                subjectList?.map((subject) => {
                                     return <Option key={subject._id} value={subject._id} >{subject.name}</Option>
                                 })
                             }
@@ -286,7 +424,7 @@ function ManageNotes() {
                     <form className='mt-5 text-black' onSubmit={handleSubmit} >
                         <input type="text" className='text-xl font-semibold placeholder:text-slate-500 border-b-2 border-blue-300  hover:border-blue-900 focus:border-blue-900 focus:outline-none w-[80%] my-2' placeholder='Name'
                             onChange={(e) => setNName(e.target.value)} value={nName} />
-                        <input type="text" className='text-xl font-semibold placeholder:text-slate-500 border-b-2 border-blue-300  hover:border-blue-900 focus:border-blue-900 focus:outline-none w-[80%] my-2' placeholder='Link' onChange={(e) => setLink(e.target.value)} value={link} />
+                        <input type="url" className='text-xl font-semibold placeholder:text-slate-500 border-b-2 border-blue-300  hover:border-blue-900 focus:border-blue-900 focus:outline-none w-[80%] my-2' placeholder='Link' onChange={(e) => setLink(e.target.value)} value={link} />
 
                         <br />
                         <button className='mt-8 w-[80%] bg-blue-800 rounded-lg py-2 text-xl text-white cursor-pointer hover:bg-blue-500'>
