@@ -4,7 +4,7 @@ import themeHook from '../Admin/ContextP'
 import { Select } from 'antd'
 import { Option } from 'antd/es/mentions';
 import { Link } from 'react-router-dom'
-import img from '../../Images/logo_try.jpg'
+import img from '../../Images/questiopp.png'
 import no_data_found from '../../Images/no_data_found.png'
 import BarLoader from 'react-spinners/BarLoader'
 function StudentQuesPaper() {
@@ -107,10 +107,10 @@ function StudentQuesPaper() {
     };
 
     useEffect(() => {
-        console.log(studentDetails[0]?.semester?._id)
-        allSubjects(studentDetails[0]?.semester?._id)
-        setSemesterId(studentDetails[0]?.semester?._id)
-        getAllQuesP(studentDetails[0]?.semester?._id)
+        console.log(studentDetails[0]?.Semester?._id)
+        allSubjects(studentDetails[0]?.Semester?._id)
+        setSemesterId(studentDetails[0]?.Semester?._id)
+        getAllQuesP(studentDetails[0]?.Semester?._id)
     }, [])
     return (
 
@@ -118,7 +118,7 @@ function StudentQuesPaper() {
             <div className='flex flex-col'>
                 <div className="py-2 px-2 flex max-lg:flex-col-reverse  w-[100%] lg:flex-row sticky top-0 " style={{ backgroundColor: 'rgb(0,0,0,0.1)' }}>
                     <div className='flex flex-row w-[100%] lg:w-[40%] justify-between items-center gap-2 max-lg:mt-5'>
-                        <button className='py-2 w-[60%] lg:w-max lg:px-4 max-md:text-sm font-semibold bg-blue-700 text-white rounded-md shadow-md hover:bg-blue-700 hover:text-white' onClick={getAllQuesP}>All Subjects</button>
+                        <button className='py-2 w-[60%] lg:w-max lg:px-4 max-md:text-sm font-semibold bg-blue-700 text-white rounded-md shadow-md hover:bg-blue-700 hover:text-white' onClick={() => getAllQuesP(studentDetails[0]?.Semester?._id)}>All Subjects</button>
 
                         <Select
                             id="semesters"
@@ -145,16 +145,16 @@ function StudentQuesPaper() {
                 ) : !loader && quesList?.length <= 0 ? (<div className="flex justify-center items-center mt-10">
                     <img src={no_data_found} alt="" className='w-[300px] h-[400px]' />
                 </div>) : (
-                    <div className='grid md:grid-cols-3 max-sm:grid-cols-1 max-md:grid-cols-2 gap-4 mt-5 px-2'>
+                    <div className='grid md:grid-cols-3 max-sm:grid-cols-1 max-md:grid-cols-2 gap-4 md:mt-5 px-2 pb-10'>
                         {quesList.map((note, index) => {
                             return <>
-                                <div key={index} className='p-4 shadow-xl rounded-md bg-white'>
-                                    <div className='flex justify-center bg-blue-50 p-2 rounded-md'>
+                                <div key={index} className='p-4 shadow-xl rounded-md bg-white text-center'>
+                                    <div className='flex justify-center bg-blue-50 p-2 rounded-[50%]'>
                                         <img src={img} alt="" className='h-[100px] w-[100px] ' />
                                     </div>
-                                    <div className='flex flex-col justify-center items-center mt-2 bg-blue-50 rounded-md p-2'>
+                                    <div className='flex flex-col justify-between items-center   rounded-md p-2 h-max'>
                                         <h2 className='font-semibold text-xl '>{note.name}</h2>
-                                        <Link target='_blank' to={note.link} className='p-2 px-5 bg-blue-200 hover:bg-blue-700 hover:text-white text-black w-max rounded-md mt-4'>click here</Link>
+                                        <Link target='_blank' to={note.link} className='p-2 px-5 bg-blue-700 hover:bg-blue-500 text-white  w-max rounded-md mt-4'>click here</Link>
                                     </div>
                                 </div>
                             </>

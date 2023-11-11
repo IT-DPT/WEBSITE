@@ -13,33 +13,33 @@ export default function Login() {
     const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const formData = new FormData();
-    formData.append('EnrNo', EnrNo);
-    formData.append('password', password);
+      try {
+        const formData = new FormData();
+        formData.append('EnrollmentNo', EnrNo);
+        formData.append('Password', password);
 
-    axios
-      .post(`${urlBackend}/api/v3/student-login`, formData)
-      .then((response) => {
+        const response = await axios.post(`${urlBackend}/api/v3/student-login`, formData);
+
         if (response.data.success) {
           setLoggedIn(true);
           setAuth({
             ...auth,
             user: response.data.user,
           });
-          localStorage.setItem("username", response.data?.user.EnrNo);
-          setUsername(response.data.user.EnrNo)
-          localStorage.setItem("userId", response.data?.user._id)
+          localStorage.setItem("username", response.data?.user.EnrollmentNo);
+          setUsername(response.data.user.EnrollmentNo);
+          localStorage.setItem("userId", response.data?.user._id);
           localStorage.setItem("auth", JSON.stringify(response.data.user));
           toast.success(`Student Logged In Successfully`);
-          navigate('/')
+          navigate('/');
         } else {
           setLoggedIn(false);
           toast.error('Invalid Credentials! Please Try Again');
         }
-      })
-      .catch((error) => {
-        toast.error('Invalid Credentials! Please Try Again');
-      });
+      } catch (error) {
+        toast.error('Something went wrong , Try again');
+      }
+
     setEnrNo('');
     setPassword('');
   }

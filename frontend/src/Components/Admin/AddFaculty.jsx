@@ -77,7 +77,10 @@ export default function AddFaculty() {
         }
       }
     })
-
+    if (photo === null) {
+      toast.error('Please Upload the Photo')
+      updateOrNot = 0
+    }
     if (updateOrNot === 1) {
       const formData = new FormData();
       formData.append('name', name);
@@ -88,7 +91,7 @@ export default function AddFaculty() {
       formData.append('post', post);
       formData.append('experience', experience);
       formData.append('photo', photo);
-
+      console.log(photo)
       try {
         const response = await axios.post(`${urlBackend}/api/v1/add-faculty`, formData, {
           headers: {

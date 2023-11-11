@@ -22,28 +22,34 @@ function AddQP() {
         setSelectedSubject(value);
         console.log(value);
     };
-    const allSem = () => {
-        axios.get(`${urlBackend}/api/v1/get-semesters`).then((response) => {
+    const allSem =async () => {
+        try {
+            const response = await axios.get(`${urlBackend}/api/v1/get-semesters`);
+
             if (response.data.success) {
                 setSemesterList(response.data.semesters);
             } else {
                 console.error('Failed to Fetch Semesters');
             }
-        }).catch((error) => {
+        } catch (error) {
             console.error('Error:', error);
-        });
+        }
+
     };
 
-    const allSubjects = (selectedSemesterId) => {
-        axios.get(`${urlBackend}/api/v1/subjects/${selectedSemesterId}`).then((response) => {
+    const allSubjects =async (selectedSemesterId) => {
+        try {
+            const response = await axios.get(`${urlBackend}/api/v1/subjects/${selectedSemesterId}`);
+
             if (response.data.success) {
                 setSubjectList(response.data.subjects);
             } else {
                 console.error('Failed to Fetch Subjects');
             }
-        }).catch((error) => {
+        } catch (error) {
             console.error('Error:', error);
-        });
+        }
+
     }
 
     const handleOnSubmit = async (e) => {
@@ -96,7 +102,7 @@ function AddQP() {
         formData.append('link', link);
         formData.append('subject', selectedSubject);
         formData.append('semester', selectedSem);
-        formData.append('role', role);
+        formData.append('role', 'Admin');
 
         try {
             const response = await axios.post(`${urlBackend}/api/v1/add-qp`, formData, {

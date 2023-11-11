@@ -5,7 +5,7 @@ import { Link, useNavigate, Outlet, useLocation } from "react-router-dom";
 // import { TailSpin } from 'react-loader-spinner'
 import { ClipLoader } from 'react-spinners'
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from 'react-icons/md'
-import { BiSolidDashboard, BiMenuAltRight, BiUpArrow, BiDownArrow } from 'react-icons/bi'
+import { BiSolidDashboard, BiMenuAltRight, BiUpArrow, BiDownArrow, BiUserCircle } from 'react-icons/bi'
 import { FiLogOut } from 'react-icons/fi'
 import { CgNotes, CgCloseR } from 'react-icons/cg'
 import themeHook from '../Admin/ContextP';
@@ -16,7 +16,7 @@ import { toast } from 'react-hot-toast'
 import { PiNotePencil } from 'react-icons/pi'
 // import { GiAchievement } from 'react-icons/gi'
 const FacultySidebar = () => {
-    const { auth, setFindForm } = themeHook()
+    const { auth,setAuth, setFindForm } = themeHook()
     const navigate = useNavigate()
     const [isOpen, setIsOpen] = useState(false);
     const [nav, setNav] = useState(false)
@@ -38,6 +38,7 @@ const FacultySidebar = () => {
     }
     const clearLocalStorage = () => {
         localStorage.clear();
+        setAuth({})
         handleNav()
     };
 
@@ -157,6 +158,16 @@ const FacultySidebar = () => {
                                 {/* LogOut */}
                                 <div className='mt-5'>
                                     <hr />
+                                    <Link to='/Faculty/Profile' className="flex flex-row py-2 gap-2 items-center" onClick={handleNav}>
+
+                                        <BiUserCircle size={28} />
+                                        <h1>
+                                            Profile
+                                        </h1>
+                                    </Link>
+                                </div>
+                                <div className='mt-5'>
+                                
                                     <Link to='/' className="flex flex-row py-2 gap-2 items-center" onClick={clearLocalStorage}>
 
                                         <FiLogOut size={22} />

@@ -6,7 +6,7 @@ import { TypeAnimation } from 'react-type-animation';
 const Forum = () => {
     
     return (
-        <div className="w-[100%]  flex flex-col md:flex-row  h-full pb-12 items-center justify-center bg-gray-100 md:px-[10%]">
+        <div className="w-[100%]  flex flex-col md:flex-row px-4  h-full pb-12 items-center justify-center bg-gray-100 md:px-[10%]">
 
             <div className=" font-sans md:font-serif flex-col w-[40%] max-md:w-[100%]  items-center justify-center mt-10">
 
@@ -39,8 +39,8 @@ const Forum = () => {
             <div className=" w-[45%] max-md:w-[100%] mt-10 max-md:mt-5  max-md:ml-0 px-4 flex flex-col ">
                 <img className="rounded-md w-[90%] mt-5    h-auto" src={img1} alt="" />
                 <p className='text-md mt-5 font-sans md:font-serif text-gray-500'>A Query Resolution Community is an online platform where users can post questions or queries on various topics and receive answers and solutions from other community members. It serves as a collaborative and knowledge-sharing space where individuals seek assistance or information from a broader audience...</p>
-                <Link to="https://forumgpm.netlify.app/">
-                    <button className="w-max mt-8 mb-5 py-2 px-6 border border-gray-500 focus:outline-none hover:bg-blue-500 rounded-md">
+                <Link to="https://forumgpm.netlify.app/" target='_blank'>
+                    <button className="w-max mt-8 mb-5 py-2 px-6 focus:outline-none bg-blue-700 hover:bg-blue-500 text-white rounded-md">
                         Start Community
                     </button>
                 </Link>

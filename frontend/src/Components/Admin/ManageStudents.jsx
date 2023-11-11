@@ -5,7 +5,6 @@ import { Modal } from 'react-responsive-modal';
 import toast from 'react-hot-toast';
 import './AdminComponents.css';
 import BarLoader from 'react-spinners/BarLoader'
-import { Link } from 'react-router-dom'
 import { Select } from 'antd'
 import { Option } from 'antd/es/mentions';
 function ManageStudents() {
@@ -21,11 +20,13 @@ function ManageStudents() {
     const [studentName, setStudentName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('');
-    const [enrNo, setEnrNo] = useState('');
+    const [EnrollmentNo, setEnrollmentNo] = useState('');
     const [phone, setPhone] = useState('');
     const [shiftPlaceholder, setShiftPlaceholder] = useState('')
     const [semesterPlaceholder, setSemesterPlaceholder] = useState('')
     const urlBackend = import.meta.env.VITE_BACKEND_API
+    const [count,setCount]=useState(false)
+   
     const handleChangeSemester = (value) => {
         setSelectedSem(value);
         setSelectedShift('');
@@ -41,96 +42,115 @@ function ManageStudents() {
     const FilterByShift = (value) => {
         getStudentsByShift(value)
     }
-    const allShifts = (selectedSemesterId) => {
-        axios.get(`${urlBackend}/api/v1/get-shifts/${selectedSemesterId}`).then((response) => {
+    const allShifts =async (selectedSemesterId) => {
+        try {
+            const response = await axios.get(`${urlBackend}/api/v1/get-shifts/${selectedSemesterId}`);
+
             if (response.data.success) {
                 setShiftList(response.data.shifts);
             } else {
                 console.error('Failed to Fetch Subjects');
             }
-        }).catch((error) => {
+        } catch (error) {
             console.error('Error:', error);
-        });
+        }
+
     }
 
-    const allSem = () => {
-        axios.get(`${urlBackend}/api/v1/get-semesters`).then((response) => {
+    const allSem =async () => {
+        try {
+            const response = await axios.get(`${urlBackend}/api/v1/get-semesters`);
+
             if (response.data.success) {
                 setSemesterList(response.data.semesters);
             } else {
                 console.error('Failed to Fetch Semesters');
             }
-        }).catch((error) => {
+        } catch (error) {
             console.error('Error:', error);
-        });
+        }
+
     };
+    function sortDataByEnrollmentNo(studentList, ascending = true) {
+        const newSortedStudents = [...studentList].sort((a, b) => {
+            return ascending
+                ? a.EnrollmentNo.localeCompare(b.EnrollmentNo)
+                : b.EnrollmentNo.localeCompare(a.EnrollmentNo);
+        });
+        setStudentList(newSortedStudents);
+    }
     useEffect(() => {
         getStudents()
         allSem()
+        
     }, [])
 
-    const getStudents = () => {
-        axios.get(`${urlBackend}/api/v1/get-students`).then((response) => {
-            if (response.data.success) {
-                console.log(response.data.students)
-                setStudentList(response.data.students);
+    const getStudents =async () => {
+       
+        try {
+            const response = await axios.get(`${urlBackend}/api/v1/get-students-data`);
 
+            if (response.data.success) {
+                console.log(response.data.students);
+                setStudentList(response.data.students);
+                sortDataByEnrollmentNo(response.data.students)
             } else {
                 console.error('Failed to fetch Students details');
             }
-            setLoader(false)
-        }).catch((error) => {
+           
+            setLoader(false);
+        } catch (error) {
             console.error('Error:', error);
-            setLoader(false)
-        });
-    }
-    const getStudentsBySemester = (value) => {
-        setLoader(true)
-        axios
-            .get(`${urlBackend}/api/v1/get-students-by-semester/${value}`)
-            .then((response) => {
-                if (response.data.success) {
-                    setStudentList(response.data.students);
-                    setLoader(false)
-                    console.log(response.data.students);
-                } else {
-                    console.log(response.data.message);
-                    setInterval(() => {
-                        setLoader(false)
-                    }, 2000);
-                }
-            })
-            .catch((error) => {
-                console.log(error);
-                setInterval(() => {
-                    setLoader(false)
-                }, 2000);
-            });
-    }
-    const getStudentsByShift = (value) => {
-        setLoader(true)
-        axios.get(`${urlBackend}/api/v1/get-students-by-shift/${value}`)
-            .then((response) => {
-                if (response.data.success) {
-                    setStudentList(response.data.students);
-                    setLoader(false)
-                    // console.log(subjectId);
-                    // console.log(response.data.students);
-                } else {
-                    console.log(response.data.message);
-                    setInterval(() => {
-                        setLoader(false)
-                    }, 2000);
+            setLoader(false);
+        }
 
-                }
-            })
-            .catch((error) => {
-                console.log(error);
-                setInterval(() => {
-                    setLoader(false)
-                }, 2000);
+    }
+    const getStudentsBySemester =async (value) => {
+        setLoader(true)
+        try {
+            const response = await axios.get(`${urlBackend}/api/v1/get-students-by-semester/${value}`);
 
-            });
+            if (response.data.success) {
+                setStudentList(response.data.students);
+                setLoader(false);
+                console.log(response.data.students);
+            } else {
+                console.log(response.data.message);
+                setTimeout(() => {
+                    setLoader(false);
+                }, 2000);
+            }
+        } catch (error) {
+            console.log(error);
+            setTimeout(() => {
+                setLoader(false);
+            }, 2000);
+        }
+
+    }
+    const getStudentsByShift =async (value) => {
+        setLoader(true)
+        try {
+            const response = await axios.get(`${urlBackend}/api/v1/get-students-by-shift/${value}`);
+
+            if (response.data.success) {
+                setStudentList(response.data.students);
+                setLoader(false);
+                // console.log(subjectId);
+                // console.log(response.data.students);
+            } else {
+                console.log(response.data.message);
+                setTimeout(() => {
+                    setLoader(false);
+                }, 2000);
+            }
+        } catch (error) {
+            console.log(error);
+            setTimeout(() => {
+                setLoader(false);
+            }, 2000);
+        }
+
     }
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -156,15 +176,15 @@ function ManageStudents() {
         setOpen(true);
         setSelectedStudent(student)
         // console.log(student._id)
-        setStudentName(student.name)
-        setEmail(student.email)
-        setEnrNo(student.EnrNo)
-        setPhone(student.phone)
+        setStudentName(student.Name)
+        setEmail(student.Email)
+        setEnrollmentNo(student.EnrollmentNo)
+        setPhone(student.Phone)
         allSem()
-        setSemesterPlaceholder(student.semester.name)
-        setShiftPlaceholder(student.shift.name)
-        setSelectedSem(student.semester._id)
-        setSelectedShift(student.shift._id)
+        setSemesterPlaceholder(student.Semester.name)
+        setShiftPlaceholder(student.Shift.name)
+        setSelectedSem(student.Semester._id)
+        setSelectedShift(student.Shift._id)
     }
 
     const onCloseModal = () => {
@@ -172,7 +192,7 @@ function ManageStudents() {
         setSelectedStudent(null)
         setStudentName('')
         setEmail('')
-        setEnrNo('')
+        setEnrollmentNo('')
         setPhone('')
         setSemesterPlaceholder('')
         setShiftPlaceholder('')
@@ -219,7 +239,7 @@ function ManageStudents() {
     const handleChangeSemesterOfStudent=async (e)=>{
         e.preventDefault()
         try {
-            const response = await axios.put('http://localhost:3000/api/v1/update-students-semester', {
+            const response = await axios.put(`${urlBackend}/api/v1/update-students-semester`, {
                 currentSemesterId,
                 currentShiftId,
                 newSemesterId,
@@ -239,44 +259,43 @@ function ManageStudents() {
             
         }
     }
-    const handleDelete = (e) => {
+    const handleDelete =async (e) => {
         e.preventDefault();
-        if (selectedStudent._id) {
-            axios.delete(`${urlBackend}/api/v1/delete-student/${selectedStudent._id}`)
-                .then((response) => {
-                    if (response.data.success) {
-                        getStudents()
-                        setStudentList((prevStudentList) =>
-                            prevStudentList.filter(
-                                (student) => student._id !== selectedStudent._id
-                            )
-                        );
-                        toast.success(`${selectedStudent.EnrNo} deleted successfully !`,
-                            {
-                                autoClose: 2000,
-                                position: 'bottom-center'
-                            })
-                    } else {
-                        toast.error('Failed to delete Time Table', {
-                            autoClose: 2000,
-                            position: 'bottom-center'
-                        });
-                    }
-                    onCloseDeleteModal();
-                })
-                .catch((error) => {
-                    toast.error(error, {
+        try {
+            if (selectedStudent._id) {
+                const response = await axios.delete(`${urlBackend}/api/v1/delete-student/${selectedStudent._id}`);
+                if (response.data.success) {
+                    getStudents();
+                    setStudentList((prevStudentList) =>
+                        prevStudentList.filter(
+                            (student) => student._id !== selectedStudent._id
+                        )
+                    );
+                    toast.success(`${selectedStudent.EnrollmentNo} deleted successfully !`, {
                         autoClose: 2000,
                         position: 'bottom-center'
                     });
-                });
+                } else {
+                    toast.error('Failed to delete Student', {
+                        autoClose: 2000,
+                        position: 'bottom-center'
+                    });
+                }
+                onCloseDeleteModal();
+            }
+        } catch (error) {
+            toast.error(error, {
+                autoClose: 2000,
+                position: 'bottom-center'
+            });
         }
+
     };
 
     const handleUpdate = async (e) => {
         e.preventDefault();
         let updateOrNot = 1;
-        const arr = [studentName, email, enrNo, phone, selectedSem, selectedShift];
+        const arr = [studentName, email, EnrollmentNo, phone, selectedSem, selectedShift];
         let countLoop = 0;
         arr.map((item, index) => {
             if (typeof item === 'string') {
@@ -304,7 +323,7 @@ function ManageStudents() {
                             position: 'bottom-center'
                         })
                     } else if (index === 2) {
-                        toast.error('EnrNo Field must filled', {
+                        toast.error('EnrollmentNo Field must filled', {
                             autoClose: 1000,
                             position: 'bottom-center'
                         })
@@ -331,45 +350,45 @@ function ManageStudents() {
         })
 
 
-        if (updateOrNot === 1) {
-            const formData = new FormData();
-            formData.append('name', studentName);
-            formData.append('email', email);
-            formData.append('EnrNo', enrNo);
-            formData.append('password', password);
-            formData.append('phone', phone);
-            formData.append('semester', selectedSem);
-            formData.append('shift', selectedShift);
-            axios.put(`${urlBackend}/api/v1/update-student/${selectedStudent._id}`, formData)
-                .then((response) => {
+        try {
+            if (updateOrNot === 1) {
+                const formData = new FormData();
+                formData.append('Name', studentName);
+                formData.append('Email', email);
+                formData.append('EnrollmentNo', EnrollmentNo);
+                formData.append('Password', password);
+                formData.append('Phone', phone);
+                formData.append('Semester', selectedSem);
+                formData.append('Shift', selectedShift);
 
-                    if (response.data.success) {
-                        getStudents()
-                        // Update facultyList with the updated faculty data
-                        setStudentList((prevStudentList) =>
-                            prevStudentList.map((student) =>
-                                student._id === selectedStudent ? response.data.student : student
-                            )
-                        );
-                        toast.success(`${selectedStudent.EnrNo} Updated Successfully`, {
-                            autoClose: 2000,
-                            closeButton: true,
-                            position: "bottom-center"
-                        })
+                const response = await axios.put(
+                    `${urlBackend}/api/v1/update-student/${selectedStudent._id}`,
+                    formData
+                );
 
-                        onCloseModal();
-                    } else {
-                        toast.error('Student is Already exist',
-                            {
-                                autoClose: 2000,
-                                position: 'bottom-center'
-                            }
-                        );
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
+                if (response.data.success) {
+                    getStudents();
+                    setStudentList((prevStudentList) =>
+                        prevStudentList.map((student) =>
+                            student._id === selectedStudent ? response.data.student : student
+                        )
+                    );
+                    toast.success(`${selectedStudent.EnrollmentNo} Updated Successfully`, {
+                        autoClose: 2000,
+                        closeButton: true,
+                        position: 'bottom-center'
+                    });
+
+                    onCloseModal();
+                } else {
+                    toast.error('Student is Already exist', {
+                        autoClose: 2000,
+                        position: 'bottom-center'
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
         }
 
     };
@@ -385,6 +404,7 @@ function ManageStudents() {
                         <div className='w-max'>
                             <button className='py-2 w-max px-4  max-md:text-sm font-semibold bg-blue-700 text-white rounded-md shadow-md hover:bg-blue-700 hover:text-white' onClick={openUpdateSemModal}>Update Students Semester</button>
                         </div>
+                       
                     </div>
                     <form onSubmit={handleSearch} className='w-[100%] flex justify-center items-center max-lg:w-[100%] '>
                         <input type="text " className=' w-[100%] rounded-xl h-[40px] max-lg:h-[30px] bg-blue-50  px-4 focus:border-blue-400 focus:outline-none border' placeholder='Search Here ....' value={search}
@@ -399,7 +419,7 @@ function ManageStudents() {
                         <Select
                             id="semesters"
                             className="max-md:text-sm max-md:w-[80%] md:w-[57%] font-semibold md:ml-3 focus:outline-none"
-                            placeholder='Notes By Semester'
+                            placeholder='Students By Semester'
                             onChange={FilterBySemester}
                         >
                             {semesterList?.map((semester) => (
@@ -417,7 +437,7 @@ function ManageStudents() {
                         <Select
                             id="semesters"
                             className="max-md:text-sm max-md:w-[80%] md:w-[57%] font-semibold md:ml-3 focus:outline-none placeholder-blue-500 "
-                            placeholder='Notes By Shift'
+                            placeholder='Students By Shift'
                             onChange={FilterByShift}
                         >
                             {
@@ -435,14 +455,14 @@ function ManageStudents() {
                 </div>
                     :
                     <div className='md:w-[100%] px-2'>
-                        <div className='text-left overflow-y-auto max-h-[500px] max-xl:max-h-[460px] rounded-md w-[100%]'>
-                            <table className='w-[100%]  rounded-md'>
+                        <div className='text-left overflow-y-auto max-h-[480px] max-xl:max-h-[460px] rounded-md w-[100%]'>
+                            <table className='w-[100%]  rounded-md '>
                                 <thead className='sticky top-0 '>
                                     <tr className='bg-slate-950 text-white text-lg font-semibold'>
                                         <th className='py-2 px-4'>SR.No</th>
+                                        <th className='py-2  px-4'>Enrollment No</th>
                                         <th className='py-2 px-4 '>Name</th>
                                         <th className='py-2 px-4 '>Email</th>
-                                        <th className='py-2  px-4'>Enrollment No</th>
                                         <th className='py-2 px-4 '>Phone</th>
                                         <th className='py-2 px-4 ' >Semester</th>
                                         <th className='py-2 px-4 '>Shift</th>
@@ -463,16 +483,15 @@ function ManageStudents() {
                                     </tr>
                                     :
                                     <tbody className='bg-slate-800 text-white '>
-
                                         {studentList?.map((student, index) => (
                                             <tr key={student._id} className=''>
                                                 <td className='py-2 px-4'>{index + 1}</td>
-                                                <td className='py-2 px-4'>{student.name}</td>
-                                                <td className='py-2 px-4' >{student.email}</td>
-                                                <td className='py-2 px-4' >{student.EnrNo}</td>
-                                                <td className='py-2 px-4' >{student.phone}</td>
-                                                <td className='py-2 px-4'>{student.semester.name}</td>
-                                                <td className='py-2 px-4'>{student.shift.name}</td>
+                                                <td className='py-2 px-4' >{student.EnrollmentNo}</td>
+                                                <td className='py-2 px-4'>{student.Name}</td>
+                                                <td className='py-2 px-4 text-blue-400' target='_blank' ><a href={`mailto:${student.Email}`} >{student.Email}</a></td>
+                                                <td className='py-2 px-4' >{student.Phone}</td>
+                                                <td className='py-2 px-4'>{student.Semester.name}</td>
+                                                <td className='py-2 px-4'>{student.Shift.name}</td>
                                                 <td className='  py-2 px-4'>
                                                     <div className='flex flex-row gap-2 justify-left'>
                                                         <button className='text-white font-semibold  bg-green-700 py-1 px-2 rounded-md' onClick={() => onOpenModal(student)}  >Update</button>
@@ -498,7 +517,7 @@ function ManageStudents() {
                         <form className='mt-2 text-black' onSubmit={handleUpdate}>
                             <input type="text" className='text-xl font-semibold placeholder:text-slate-500 border-b-2 border-blue-300  hover:border-blue-900 focus:border-blue-900 focus:outline-none w-[80%] my-2' placeholder='Name' onChange={(e) => setStudentName(e.target.value)} value={studentName} required />
                             <input type="email" className='text-xl font-semibold placeholder:text-slate-500 border-b-2 border-blue-300  hover:border-blue-900 focus:border-blue-900 focus:outline-none w-[80%] my-2' placeholder='Email' onChange={(e) => setEmail(e.target.value)} value={email} required />
-                            <input type="text" className='text-xl font-semibold placeholder:text-slate-500 border-b-2 border-blue-300  hover:border-blue-900 focus:border-blue-900 focus:outline-none w-[80%] my-2' placeholder='Enrollment No' onChange={(e) => setEnrNo(e.target.value)} value={enrNo} required />
+                            <input type="text" className='text-xl font-semibold placeholder:text-slate-500 border-b-2 border-blue-300  hover:border-blue-900 focus:border-blue-900 focus:outline-none w-[80%] my-2' placeholder='Enrollment No' onChange={(e) => setEnrollmentNo(e.target.value)} value={EnrollmentNo} required />
 
                             <input type="text" className='text-xl font-semibold placeholder:text-slate-500 border-b-2 border-blue-300  hover:border-blue-900 focus:border-blue-900 focus:outline-none w-[80%] my-2' placeholder='phone' onChange={(e) => setPhone(e.target.value)} value={phone} required />
                             <div className='flex flex-col justify-center px-20'>

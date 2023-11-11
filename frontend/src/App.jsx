@@ -5,7 +5,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast';
 import {UserProvider } from './Components/Admin/ContextP'
 import Home from "./Components/HomeComponents/Home"
-import FacultyDetailes from "./Components/NavComponents/FacultyDetailes"
+import FacultyDetails from "./Components/NavComponents/FacultyDetails"
 import Curriculum from "./Components/NavComponents/Curriculum"
 import Contact from "./Components/NavComponents/Contact"
 import Layout from "./Components/Layout"
@@ -43,6 +43,12 @@ import FAddNotice from "./Components/Faculty/FAddNotice";
 import FManageNotices from "./Components/Faculty/FManageNotices";
 import StudentNotices from "./Components/Students/StudentNotices";
 import MiniphotoG from "./Components/HomeComponents/MiniphotoG"
+import PhotoGallery from "./Components/Admin/PhotoGallery";
+import AcademicAchievements from "./Components/Admin/AcademicAchievements";
+import AdminProfile from "./Components/Admin/AdminProfile";
+import FacultyProfile from "./Components/Faculty/FacultyProfile";
+import StudentProfile from "./Components/Students/StudentProfile";
+import TestUpload from "../src/Components/TestUpload"
 function App() {
   
   return (
@@ -53,7 +59,7 @@ function App() {
         <Routes>
           <Route path='/' element={<Layout />} >
             <Route exact path="/" element={<Home />} ></Route>
-            <Route exact path='/FacultyDetailes' element={<FacultyDetailes />}></Route>
+              <Route exact path='/FacultyDetails' element={<FacultyDetails />}></Route>
             <Route exact path='/Curriculum' element={<Curriculum />}></Route>
             <Route exact path='/Contact' element={<Contact />}></Route>
               <Route exact path='/MiniphotoG' element={<MiniphotoG />}></Route>
@@ -61,9 +67,11 @@ function App() {
             <Route exact path='/Student-Login' element={<Login />}></Route>
             <Route exact path='/Faculty-Login' element={<FacultyLogin />}></Route>
             <Route exact path='/Admin-Login' element={<AdminLogin />}></Route>
+            <Route exact path='/Excel-upload' element={<TestUpload/>}></Route>
           </Route>
 
           <Route path='/Admin' element={<Sidebar />}>
+            <Route exact path='/Admin/Profile' element={<AdminProfile/>}></Route>
             <Route exact path='/Admin/Dashboard' element={<Dashboard/>}></Route>
             <Route exact path='/Admin/AddStudent' element={<AddStudent />}></Route>
             <Route exact path='/Admin/ManageStudent' element={<ManageStudents />}></Route>
@@ -79,14 +87,18 @@ function App() {
             <Route exact path='/Admin/ManageNotice' element={<ManageNotice />}></Route>
             <Route exact path='/Admin/AddAchievement' element={<AddAchievement />}></Route>
             <Route exact path='/Admin/ManageAchievements' element={<ManageAchievements />}></Route>
+            <Route exact path='/Admin/PhotoGallery' element={<PhotoGallery />}></Route>
+            <Route exact path='/Admin/AcademicAchievements' element={<AcademicAchievements />}></Route>
           </Route>
           <Route path='/Student' element={<StudentSidebar/>}>
               <Route exact path="/Student/Notes" element={<StudentNotes/>}></Route>
+              <Route exact path="/Student/Profile" element={<StudentProfile/>}></Route>
               <Route exact path="/Student/QuestionP" element={<StudentQuesPaper/>}></Route>
               <Route exact path="/Student/TimeTable" element={<TimeTable/>}></Route>
               <Route exact path="/Student/Notices" element={<StudentNotices/>}></Route>
           </Route>
           <Route path='/Faculty' element={<FacultySidebar/>}>
+              <Route exact path='/Faculty/Profile' element={<FacultyProfile/>} ></Route>  
               <Route exact path='/Faculty/AddNote' element={<FAddNotes/>} ></Route>  
               <Route exact path='/Faculty/ManageNotes' element={<FManageNotes/>} ></Route>  
               <Route exact path='/Faculty/AddQuestionPaper' element={<FAddQP/>} ></Route>  

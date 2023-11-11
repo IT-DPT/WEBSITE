@@ -1,28 +1,96 @@
 const express = require("express");
 const router = express.Router();
-// const argon2 = require("express");
 const cloudinary = require("cloudinary").v2;
+const tStudent = require("../Models/TestStudent")
 const adminModel=require('../Models/AdminModel')
-const studentModel = require("../Models/Student");
-const facultyModel = require("../Models/FacultyModel");
-const semesterModel = require("../Models/Semester");
-const subjectModel = require("../Models/Subject");
-const shiftModel = require("../Models/Shift");
-const timeTableModel = require("../Models/TimeTable");
-const notesModel = require("../Models/Notes");
-const qPModel = require("../Models/QuestionPaper");
-const noticeModel = require("../Models/Notice");
+const facultyModel = require("../Models/FacultyModel")
+const semesterModel = require("../Models/Semester")
+const subjectModel = require("../Models/Subject")
+const shiftModel = require("../Models/Shift")
+const timeTableModel = require("../Models/TimeTable")
+const notesModel = require("../Models/Notes")
+const qPModel = require("../Models/QuestionPaper")
+const noticeModel = require("../Models/Notice")
 const achievementModel =require("../Models/Achievements")
-const api_secret_key = process.env.Cld_Api_key;
+const photoGalleryModel=require("../Models/PhotoGallery")
+const academicAchievementsModel=require("../Models/AcademicAchment")
 
 cloudinary.config({
-  cloud_name: "dc28atbon",
-  api_key: "382378611656777",
-  api_secret: api_secret_key,
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
   secure: true,
 });
+
+router.get("/get-students-data",async (req,res)=>{
+  try{
+   const students=await tStudent.find({}).populate("Semester").populate("Shift")
+   res.send({
+    success:true,
+    students
+   })
+  }catch(err){
+    res.send({success:false,message:err})
+  }
+})
+ router.post("/upload-excel-file",async (req,res)=>{
+   const dataString = req.body.data;
+   const semShift = req.body.semShift;
+   try {
+     const dataArray = JSON.parse(dataString);
+     console.log(dataArray)
+     const studentsToSave = dataArray.map((data) => ({
+       EnrollmentNo: data.EnrollmentNo,
+       Name: data.Name,
+       Email: data.Email,
+       Password: data.EnrollmentNo,
+       Phone: data.Phone,
+       Semester: semShift.Semester,
+       Shift: semShift.Shift,
+     }));
+    //  const enrollmentNumbers = dataArray.map((data) => data.EnrollmentNo);
+     console.log("Enrollment Numbers:", studentsToSave);
+     const existingStudents = await tStudent.find({
+       $or: [
+         {
+           EnrollmentNo: {
+             $in: studentsToSave.map((data) => data.EnrollmentNo),
+           },
+         },
+         { Email: { $in: studentsToSave.map((data) => data.Email) } },
+       ],
+     });
+
+     if (existingStudents.length > 0) {
+       console.log("EnrollmentNo or Email already exists:", existingStudents);
+       res.status(200)
+         .send({
+           success: false,
+           message: "EnrollmentNo or Email already exists",
+         });
+       return;
+     }
+     const result = await tStudent.insertMany(studentsToSave);
+      console.log("Saved:", result);
+
+     res.status(200).send({success:true,message: "Data received and saved successfully" });
+   } catch (error) {
+     console.error("Error parsing JSON:", error);
+     res.status(400).send({success:false, message: "Invalid JSON data" });
+   }
+ })
+
 // Dashboard
 // Total Faculties
+router.get("/students-count", async (req, res) => {
+  try {
+    const totalCount = await tStudent.countDocuments();
+    res.send({ totalStudents: totalCount });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Internal server error" });
+  }
+}); 
 router.get("/faculties-count", async (req, res) => {
   try {
     const totalCount = await facultyModel.countDocuments();
@@ -85,9 +153,9 @@ router.post("/add-faculty", async (req, res, next) => {
       });
     }
     const file = req.files.photo;
-    console.log(file);
+    console.log(req.files);
     cloudinary.uploader.upload(file.tempFilePath, async (err, result) => {
-      console.log(result.url);
+      console.log(result?.url);
       
       const newFaculty = new facultyModel({
         name,
@@ -97,7 +165,7 @@ router.post("/add-faculty", async (req, res, next) => {
         qualification,
         post,
         experience,
-        photo: result.url,
+        photo: result?.url,
       });
       console.log(newFaculty);
       await newFaculty.save();
@@ -254,13 +322,13 @@ router.get("/search-student", async (req, res) => {
   try {
     const { search } = req.query; // Get the search query from the query parameters
 
-    const students = await studentModel.find({
+    const students = await tStudent.find({
       $or: [
-        { name: { $regex: ".*" + search + ".*", $options: "i" } },
-        { email: { $regex: ".*" + search + ".*", $options: "i" } },
-        { EnrNo: { $regex: ".*" + search + ".*", $options: "i" } },
+        { Name: { $regex: ".*" + search + ".*", $options: "i" } },
+        { Email: { $regex: ".*" + search + ".*", $options: "i" } },
+        { EnrollmentNo: { $regex: ".*" + search + ".*", $options: "i" } },
       ],
-    }).populate("semester").populate("shift")
+    }).populate("Semester").populate("Shift")
 
     res.status(200).send({ success: true, students });
   } catch (error) {
@@ -271,9 +339,9 @@ router.get("/search-student", async (req, res) => {
 router.get("/get-students-by-semester/:id", async (req, res) => {
   try {
     const semesterId = req.params.id;
-    const students = await studentModel.find({ semester: semesterId })
-      .populate("shift")
-      .populate("semester");
+    const students = await tStudent.find({ Semester: semesterId })
+      .populate("Shift")
+      .populate("Semester");
     res.send({ success: true, students });
   } catch (error) {
     console.error("Error fetching notes details:", error);
@@ -285,9 +353,9 @@ router.get("/get-students-by-semester/:id", async (req, res) => {
 router.get("/get-students-by-shift/:id", async (req, res) => {
   try {
     const shiftId = req.params.id;
-    const students = await studentModel.find({ shift: shiftId })
-      .populate("shift")
-      .populate("semester");
+    const students = await tStudent.find({ Shift: shiftId })
+      .populate("Shift")
+      .populate("Semester");
     res.send({ success: true, students });
   } catch (error) {
     console.error("Error fetching notes details:", error);
@@ -303,15 +371,15 @@ router.put("/update-students-semester", async (req, res) => {
 
 
     // Use the updateMany function to update the semester and shift of students
-    const result = await studentModel.updateMany(
+    const result = await tStudent.updateMany(
       {
-        semester: currentSemesterId,
-        shift: currentShiftId,
+        Semester: currentSemesterId,
+        Shift: currentShiftId,
       },
       {
         $set: {
-          semester: newSemesterId,
-          shift: newShiftId,
+          Semester: newSemesterId,
+          Shift: newShiftId,
         },
       }
     );
@@ -447,7 +515,6 @@ router.get("/get-semesters", async (req, res) => {
 router.get("/get-shifts/:id", async (req, res) => {
   try {
     const id = req.params.id;
-
     const shifts = await shiftModel
       .find({ semester: id })
       .populate("name", "semester");
@@ -486,26 +553,40 @@ router.post("/addTT", async (req, res) => {
   try {
     const file = req.files.photo;
     cloudinary.uploader.upload(file.tempFilePath, async (err, result) => {
-      // console.log(result.url);
+      if (err) {
+        console.error(err);
+        return res.status(500).json({
+          success: false,
+          message: "Error uploading the photo",
+        });
+      }
+
+      console.log(result);
       const newTimeTable = new timeTableModel({
         name,
         photo: result.url,
         semester,
         shift,
       });
+
       await newTimeTable.save();
-    });
-    return res.status(200).send({
-      success: true,
-      message: "done",
+
+      console.log("photo uploaded successfully");
+
+      return res.status(200).json({
+        success: true,
+        message: "done",
+      });
     });
   } catch (err) {
-    res.send({
+    console.error(err);
+    return res.status(500).json({
       success: false,
-      message: err,
+      message: "An error occurred while processing the request",
     });
   }
 });
+
 // Add new notes
 router.post("/add-notes", async (req, res) => {
   const { name, link, subject, semester,role} = req.body;
@@ -1022,22 +1103,22 @@ router.delete("/delete-achievement/:id", async (req, res) => {
 
 router.post("/add-student", async (req, res, next) => {
   try {
-    const { name, email, EnrNo, password, phone, semester, shift } = req.body;
-    const StudentExist = await studentModel.findOne({ EnrNo: EnrNo });
+    const { Name, Email, EnrollmentNo, Password, Phone, Semester, Shift } = req.body;
+    const StudentExist = await tStudent.findOne({ EnrollmentNo: EnrollmentNo });
     if (StudentExist) {
       return res
         .status(200)
         .send({ success: false, message: "Student Already exist" });
     }
     // const hashedPass = await argon2.hash(password);
-    const newStudent = new studentModel({
-      name,
-      email,
-      EnrNo,
-      password,
-      phone,
-      semester,
-      shift,
+    const newStudent = new tStudent({
+      Name,
+      Email,
+      EnrollmentNo,
+      Password,
+      Phone,
+      Semester,
+      Shift,
     });
     await newStudent.save();
     return res.status(200).send({
@@ -1054,7 +1135,7 @@ router.post("/add-student", async (req, res, next) => {
 // Get Students
 router.get('/get-students',async (req,res)=>{
   try{
-    const students=await studentModel.find().populate("semester").populate("shift")
+    const students=await tStudent.find().populate("Semester").populate("Shift")
     res.send({
       success:true,
       students
@@ -1070,25 +1151,27 @@ router.get('/get-students',async (req,res)=>{
 router.put("/update-student/:id", async (req, res) => {
   try{
     const studentId=req.params.id
-    const student = await studentModel.findById(studentId)
+    const student = await tStudent.findById(studentId)
      if (!student) {
        return res
          .status(404)
          .send({ success: false, message: "Student not found" });
      }
-    const {name,email,EnrNo,phone,semester,shift}=req.body
-    const studentExist= await studentModel.findOne({EnrNo:EnrNo})
-    if(studentExist && student.EnrNo !== EnrNo){
+    const {EnrollmentNo,Name,Email,Phone,Semester,Shift}=req.body
+    const studentExist = await tStudent.findOne({
+      EnrollmentNo: EnrollmentNo
+    });
+    if(studentExist && student.EnrollmentNo !== EnrollmentNo){
       return res.status(200).send({
         data: { success: false, message: "Enrollment No Already Exist" },
       });
     }else{
-      student.name=name
-      student.email=email,
-      student.EnrNo=EnrNo,
-      student.phone=phone,
-      student.semester=semester,
-      student.shift=shift
+      student.EnrollmentNo=EnrollmentNo,
+      student.Name=Name,
+      student.Email=Email,
+      student.Phone=Phone,
+      student.Semester=Semester,
+      student.Shift=Shift
     }
     await student.save()
      res.status(200).send({ success: true, student });
@@ -1103,9 +1186,9 @@ router.put("/update-student/:id", async (req, res) => {
 // get student by EnrNo
 router.get('/search-student', async (req, res) => {
   try {
-    const { EnrNo } = req.query; // Get the EnrNo from the query parameters
+    const { EnrollmentNo } = req.query; // Get the EnrNo from the query parameters
 
-    const student = await studentModel.findOne({ EnrNo: EnrNo });
+    const student = await tStudent.findOne({ EnrollmentNo: EnrollmentNo });
 
     if (!student) {
       return res.status(404).send({ success: false, message: 'Student not found' });
@@ -1123,15 +1206,15 @@ router.get('/search-student', async (req, res) => {
 router.put('/update-passwordSt/:id',async (req,res)=>{
   try{
     const studentId = req.params.id;
-    const {password}=req.body
-    const student = await studentModel.findById(studentId);
+    const {Password}=req.body
+    const student = await tStudent.findById(studentId);
     if (!student) {
       return res
         .status(404)
         .send({ success: false, message: "Student not found" });
     }
-    const hashedPass = await bcrypt.hash(password, 10);
-    student.password=hashedPass
+    // const hashedPass = await bcrypt.hash(password, 10);
+    student.Password=Password
     await student.save();
     res.status(200).send({ success: true, student });
   }catch(error){
@@ -1145,7 +1228,7 @@ router.put('/update-passwordSt/:id',async (req,res)=>{
 router.delete("/delete-student/:id", async (req, res) => {
 try{
   const studentId=req.params.id
-  const deletedStudent = await studentModel.findByIdAndRemove(studentId);
+  const deletedStudent = await tStudent.findByIdAndRemove(studentId);
   if (!deletedStudent) {
     return res
       .status(404)
@@ -1186,4 +1269,325 @@ router.post('/add-admin',async (req,res)=>{
     });
   }
 })
+
+router.put('/update-password',async (req,res)=>{
+  try {
+    const {oldPassword,newPassword} =req.body
+    let admin =await adminModel.findOne();
+    if(admin.password !== oldPassword){
+      return res.send({
+        success:false,
+        message:"Old Password is incorrect!"
+      })
+    }    
+    admin.password=newPassword
+    
+    await admin.save()
+    return res.send({success:true,admin})
+    console.log(user)
+  }catch(error){
+    return res.send({
+      success:false,
+      message:'Something went wrong'
+    })
+  }
+})
+
+
+
+
+// const cloudinary = require("cloudinary"); // You need to import the cloudinary library
+
+// routes/photoGalleryRoutes.js
+
+// const express = require("express");
+// const router = express.Router();
+// const multer = require("multer");
+// const path = require("path");
+
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, path.join(__dirname, "../public/images")); // Define the destination directory for uploaded images
+//   },
+//   filename: function (req, file, cb) {
+//     const name = Date.now() + "-" + file.originalname;
+//     cb(null, name);
+//   },
+// });
+
+// const upload = multer({ storage: storage });
+
+// // const PhotoGallery = require("../models/photoGalleryModel");
+
+// router.post("/add-image", upload.single("image"), async (req, res) => {
+//   if (!req.file) {
+//     return res.status(400).json({ error: "No image file uploaded" });
+//   }
+//   console.log(req.file.filename)
+//   // res.send({success:true})
+//   const { title } = req.body;
+//   const image = req.file.filename; // The filename of the uploaded image
+//   try {
+    
+//     const newPhoto = new photoGalleryModel({ title,photo:image });
+//     console.log(image)
+//     await newPhoto.save();
+
+//     return res.status(200).json({
+//       success: true,newPhoto
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       success: false,
+//       message: "An error occurred while uploading the image",
+//     });
+//   }
+// });
+
+ 
+     // try {
+  //   const newPhoto = await photoGalleryModel.create({
+  //     title: title,
+  //     photo: fileName,
+  //   });
+
+  //   res.json({ status: "ok", newPhoto });
+  // } catch (error) {
+  //   res.status(500).json({ status: error.message });
+  // }
+router.post("/add-imageSlider", async (req, res) => {
+  const { title } = req.body;
+  try {
+    const photoExist = await photoGalleryModel.findOne({ title: title });
+
+    if (photoExist) {
+      return res.status(200).json({
+        success: false,
+        message: "Photo Title Already Exists",
+      });
+    }
+    const file = req.files.photo;
+    cloudinary.uploader.upload(file.tempFilePath, async (err, result) => {
+      if (err) {
+        return res.status(500).json({
+          success: false,
+          message: "Error uploading photo to Cloudinary",
+        });
+      }
+      const newPhoto = new photoGalleryModel({
+        title,
+        photo: result.url,
+      });
+      await newPhoto.save();
+      return res.status(200).json({
+        success: true,
+        newPhoto, // You can send the new photo data in the response
+      });
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred",
+    });
+  }
+});
+router.put("/update-imageSlider/:id", async (req, res) => {
+  try {
+    const imageId = req.params.id;
+    const image = await photoGalleryModel.findById(imageId);
+
+    const { title } = req.body;
+    if (!image) {
+      return res.status(404).json({
+        success: false,
+        message: "Image Not Found",
+      });
+    }
+    image.title = title;
+
+    if (req.files && req.files.photo) {
+      const photoFile = req.files.photo;
+      const result = await uploadPhotoToCloudinary(photoFile); // Make sure to define this function
+
+      if (result && result.secure_url) {
+        image.photo = result.secure_url;
+      }
+    }
+    await image.save();
+    return res.status(200).json({
+      success: true,
+      updatedImage: image,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+});
+router.delete("/delete-imageSliderPhoto/:id", async (req, res) => {
+  const imageId = req.params.id;
+
+  try {
+    // Find the faculty record by ID and remove it
+    const deletedImage = await photoGalleryModel.findByIdAndRemove(imageId);
+
+    if (!deletedImage) {
+      return res
+        .status(404)
+        .send({ success: false, message: "Image not found" });
+    }
+
+    res.send({ success: true, message: "Image deleted successfully" });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send({ success: false, message: "Internal server error" });
+  }
+});
+router.get("/get-imageSlider", async (req, res) => {
+  try{
+    const images = await photoGalleryModel.find()
+    res.send({ success: true, images });
+  }catch(error){
+    res.status(500).send({success:false,error:'Failed to fetch Achievements'})
+  }
+})
+
+router.get("/search-imagesSlider", async (req, res) => {
+  try {
+    const { search } = req.query; // Get the search query from the query parameters
+
+    const images = await photoGalleryModel.find({
+      $or: [
+        { title: { $regex: ".*" + search + ".*", $options: "i" } },
+      ],
+    });
+
+    res.status(200).send({ success: true, images });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send({ success: false, message: "Internal server error" });
+  }
+});
+// Academic Achievements
+router.post("/add-academicAch", async (req, res) => {
+  const { title } = req.body;
+  try {
+    const photoExist = await academicAchievementsModel.findOne({
+      title: title,
+    });
+
+    if (photoExist) {
+      return res.status(200).json({
+        success: false,
+        message: "Photo Title Already Exists",
+      });
+    }
+    const file = req.files.photo;
+    cloudinary.uploader.upload(file.tempFilePath, async (err, result) => {
+      if (err) {
+        return res.status(500).json({
+          success: false,
+          message: "Error uploading photo to Cloudinary",
+        });
+      }
+      const newPhoto = new academicAchievementsModel({
+        title,
+        photo: result.url,
+      });
+      await newPhoto.save();
+      return res.status(200).json({
+        success: true,
+        newPhoto, // You can send the new photo data in the response
+      });
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred",
+    });
+  }
+});
+router.put("/update-academicAch/:id", async (req, res) => {
+  try {
+    const imageId = req.params.id;
+    const image = await academicAchievementsModel.findById(imageId);
+
+    const { title } = req.body;
+    if (!image) {
+      return res.status(404).json({
+        success: false,
+        message: "Image Not Found",
+      });
+    }
+    image.title = title;
+
+    if (req.files && req.files.photo) {
+      const photoFile = req.files.photo;
+      const result = await uploadPhotoToCloudinary(photoFile); // Make sure to define this function
+
+      if (result && result.secure_url) {
+        image.photo = result.secure_url;
+      }
+    }
+    await image.save();
+    return res.status(200).json({
+      success: true,
+      updatedImage: image,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+});
+router.delete("/delete-academicAch/:id", async (req, res) => {
+  const imageId = req.params.id;
+
+  try {
+    // Find the faculty record by ID and remove it
+    const deletedImage = await academicAchievementsModel.findByIdAndRemove(
+      imageId
+    );
+
+    if (!deletedImage) {
+      return res
+        .status(404)
+        .send({ success: false, message: "Image not found" });
+    }
+
+    res.send({ success: true, message: "Image deleted successfully" });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send({ success: false, message: "Internal server error" });
+  }
+});
+router.get("/get-academicAch", async (req, res) => {
+  try {
+    const images = await academicAchievementsModel.find();
+    res.send({ success: true, images });
+  } catch (error) {
+    res
+      .status(500)
+      .send({ success: false, error: "Failed to fetch Achievements" });
+  }
+});
+
+router.get("/search-academicAch", async (req, res) => {
+  try {
+    const { search } = req.query; // Get the search query from the query parameters
+
+    const images = await academicAchievementsModel.find({
+      $or: [{ title: { $regex: ".*" + search + ".*", $options: "i" } }],
+    });
+
+    res.status(200).send({ success: true, images });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send({ success: false, message: "Internal server error" });
+  }
+});
 module.exports = router;

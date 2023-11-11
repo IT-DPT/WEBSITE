@@ -14,7 +14,6 @@ function FManageNotes() {
     const [notesList, setNotesList] = useState('')
     const [loader, setLoader] = useState(true)
     const [selectedNote, setSelectedNote] = useState(null)
-
     const [semesterList, setSemesterList] = useState([]);
     const [subjectList, setSubjectList] = useState([]);
     const [selectedSem, setSelectedSem] = useState('');
@@ -24,7 +23,7 @@ function FManageNotes() {
     const [subjectPlaceholder, setSubjectPlaceholder] = useState('')
     const [semesterPlaceholder, setSemesterPlaceholder] = useState('')
     const urlBackend = import.meta.env.VITE_BACKEND_API
-    const {auth}=themeHook()
+    const {auth,userId}=themeHook()
     const handleChangeSemester = (value) => {
         setSelectedSem(value);
         setSelectedSubject('');
@@ -68,7 +67,7 @@ function FManageNotes() {
     }, [])
     const getNotes =async () => {
         try {
-            const response = await axios.get(`${urlBackend}/api/v4/get-notes/${auth?.user?.phone}`);
+            const response = await axios.get(`${urlBackend}/api/v4/get-notes/${userId}`);
 
             if (response.data.success) {
                 setNotesList(response.data.notes);
